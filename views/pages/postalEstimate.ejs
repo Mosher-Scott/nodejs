@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <% include ../partials/header.ejs %>
+</head>
+
+<body>
+    <% include ../partials/nav.ejs %>
+    <h1>Postage Result</h1>
+    <p><b>Shipping Method: </b><%= shipMethod %></p>
+    <p><b>Weight: </b><%= packageWeight %></p> 
+    <p><b>Total :</b>$<%= total %> </p>
+</body>
+</html>
+

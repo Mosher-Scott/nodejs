@@ -2,8 +2,10 @@ const express = require('express')
 const path = require('path')
 const PORT = process.env.PORT || 5000
 
+var functions = require('./public/scripts/functions.js');
+var exportedFunctions = require('./public/scripts/exportFunctions.js');
 
-var mathRouter = require('./routes/math');
+//var mathRouter = require('./routes/math');
 
 express()
   .use(express.static(path.join(__dirname, 'public')))
@@ -14,49 +16,32 @@ express()
   //.use('/math', mathRouter) // Add the math route to the app
 
   .get('/math', getFormSubmission)
-  // Set up the homepage we want the users to go to by default
+
+  // When the user wants to create a postal estimate
+  .get('/postal', (req, res) => res.sendFile(__dirname + '/public/postalRateCalculator.html'))
+
+   // When the form is submitted for an estimate on postage
+  .get('/estimate', getPostalData)
+
+  // Set up the homepage when the homepage is requested
   .get('/', (req, res) => res.sendFile(__dirname + '/public/mathForm.html'))
   .listen(PORT, () => console.log(`Listening on ${ PORT }`))
 
+// Get the form submission for a simple calculator
+function getFormSubmission(request, response) {
+  const operation = request.query.operator;
+  const numOne = Number(request.query.numOneInput);
+  const numTwo = Number(request.query.numTwoInput);
 
-  function getFormSubmission(request, response) {
-    const operation = request.query.operator;
-    const numOne = Number(request.query.numOneInput);
-    const numTwo = Number(request.query.numTwoInput);
-
-    // Now send everything to the function to actually do the math
-    getAnswer(response, operation, numOne, numTwo);
+  // Now send everything to the function to actually do the math
+  exportedFunctions.data.getAnswer(response, operation, numOne, numTwo);
 }
 
-function performMathOperations(operator, numOne, numTwo) {
-  switch (operator) {
-      case '+':
-          result = parseInt(numOne) + parseInt(numTwo);
-          break;
-       case '-':
-           result = parseInt(numOne) - parseInt(numTwo);
-          break;
-       case '*':
-           result = parseInt(numOne) * parseInt(numTwo);
-           break;
-       case '/':
-           result = parseInt(numOne) / parseInt(numTwo);
-           break;
-       default:
-           result = "error";
-           break;
-  }
+// Get form submission data for calculating the postal cost
+function getPostalData(request, response) {
+  const shipMethod = request.query.shipMethod;
+  const weight = request.query.weight;
 
-  return result;
-}
-
-function getAnswer(response, operator, numOne, numTwo) {
-  // Run this method to perform the math
-  var result = performMathOperations(operator, numOne, numTwo);
-
- // Return a JSON object
- const values = {operationUsed: operator, firstNumber: numOne, secondNumber: numTwo, result: result }
-
- // Now render the results for the EJS page.  Need to pass it the JSON file
- response.render('pages/formSubmission', values);
+  // Now call the other methods to do the calculations
+  exportedFunctions.data.calculateRate(response, shipMethod, weight);
 }

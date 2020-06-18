@@ -10,6 +10,7 @@
 
     <script src="scripts/functions.js"></script>
 </head>
+
 <nav class="navbar navbar-default navbar-static-top navbar-inverse">
   <div class="container">
     <ul class="nav navbar-nav">
@@ -22,38 +23,28 @@
     </ul>
   </div>
 </nav>
+
 <body>
 
-  <h1>Calculator</h1>
+  <h1>Postal Rate Calculator</h1>
 
   <div>
-    <form method="get", action='../math'>
+    <form method="get", action='../estimate'>
       <div class="form-group">
-        <label for="numOneInput">First Number</label>
-        <input type="text" class="form-control" id="numOneInput" name="numOneInput" aria-describedby="numOneHelp" placeholder="Enter First Number">
-        <small id="numOneHelp" class="form-text text-muted">Please enter a valid number</small>
+        <label for="weight">Weight</label>
+        <input type="text" class="form-control" id="weight" name="weight" aria-describedby="weighthelp" placeholder="Weight">
+        <small id="numOneHelp" class="form-text text-muted">Please enter a weight</small>
       </div>
+
       <div class="form-group">
-        <label for="numTwoInput">Second Number</label>
-        <input type="text" class="form-control" id="numTwoInput" name="numTwoInput" aria-describedby="numTwoHelp" placeholder="Enter Second Number">
-        <small id="numTwoHelp" class="form-text text-muted">Please enter a valid number</small>
-      </div>
-      <div class="form-group">
-        <label for="operator">Please pick an operation</label>
-        <select name="operator" id="operator">
-          <option value = "+">+</option>
-          <option value = "-">-</option>
-          <option value = "*">x</option>
-          <option value = "/">/</option>
+        <label for="shipMethod">Shipping Methods</label>
+        <select name="shipMethod" id="shipMethod">
+          <option value = "flat">First Class Flat Envelope</option>
+          <option value = "package">First Class Package</option>
         </select>
       </div>
       <button type="submit" class="btn btn-primary">Submit</button>
     </form>
-  </div>
-  <div>
-    <br>
-    <button type="button" onclick="getInfo()" class="btn btn-primary">Ajax Math!</button>
-    <p>Your total is: <span id="answer"></span></p>
   </div>
 
 </body>
