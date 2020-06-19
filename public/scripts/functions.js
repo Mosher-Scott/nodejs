@@ -12,4 +12,26 @@ function getInfo() {
 
 }
 
+// Does the heavy work of doing the math operations
+function performMathOperations (operator, numOne, numTwo) {
+    switch (operator) {
+    case '+':
+        result = parseInt(numOne) + parseInt(numTwo);
+        break;
+    case '-':
+        result = parseInt(numOne) - parseInt(numTwo);
+        break;
+    case '*':
+        result = parseInt(numOne) * parseInt(numTwo);
+        break;
+    case '/':
+        result = parseInt(numOne) / parseInt(numTwo);
+        break;
+    default:
+        result = "error";
+        break;
+    }
+
+    return result;
+}
 

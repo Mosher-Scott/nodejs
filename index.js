@@ -10,12 +10,15 @@ var exportedFunctions = require('./public/scripts/exportFunctions.js');
 express()
   .use(express.static(path.join(__dirname, 'public')))
   //.use(express.static('public'))
-  .set('views', path.join(__dirname, 'views'))
+  .set('views', [path.join(__dirname, 'views'),
+                path.join(__dirname, 'views/pages')])
   .set('view engine', 'ejs')
   .set()
-  //.use('/math', mathRouter) // Add the math route to the app
 
-  .get('/math', getFormSubmission)
+  // When the user wants to use math calculator
+  .get('/math', (req, res) => res.sendFile(__dirname + '/public/mathForm.html'))
+
+  .get('/mathsubmission', getFormSubmission)
 
   // When the user wants to create a postal estimate
   .get('/postal', (req, res) => res.sendFile(__dirname + '/public/postalRateCalculator.html'))
@@ -24,7 +27,8 @@ express()
   .get('/estimate', getPostalData)
 
   // Set up the homepage when the homepage is requested
-  .get('/', (req, res) => res.sendFile(__dirname + '/public/mathForm.html'))
+  //.get('/', (req, res) => res.sendFile(__dirname + '/views/pages/index.ejs'))
+  .get('/', (req, res) => res.render('index'))
   .listen(PORT, () => console.log(`Listening on ${ PORT }`))
 
 // Get the form submission for a simple calculator
