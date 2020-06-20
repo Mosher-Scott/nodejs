@@ -19,6 +19,7 @@
                     <p>This page displays the result of your shipping calculation.</p>
                     <p>If you entered an invalid weight, you'll see an error message in place of a total. I accomplished this by using an if/else statement in my ejs file based on the message returned from the json file.</p>
                     <p>I've also added functionality to take the select option name that the user picked for shipping, such as "first-class-flat-rate-envelope", and replace the "-" characters with a white space, and then capitalized the first letter of each word.</p>
+                    <a href='\postal' class="btn btn-primary">Back to Postal Calculator</a>
                 </div>
     
                 <div class='col-sm-6'>
@@ -30,10 +31,9 @@
 
                         <% } else { %>
                             <p><b>Total:</b> $<%= total %> </p>
-                        <% } %>
-                        
-                        
+                        <% } %> 
                 </div>
+                
             </div>
         </div>
     </div>
