@@ -15,9 +15,10 @@ express()
   .set('view engine', 'ejs')
   .set()
 
-  // When the user wants to use math calculator
+  // When the user wants to use the math calculator
   .get('/math', (req, res) => res.sendFile(__dirname + '/public/mathForm.html'))
 
+  // Called on form submission for the math calculator
   .get('/mathsubmission', getFormSubmission)
 
   // When the user wants to create a postal estimate
@@ -45,7 +46,7 @@ function getFormSubmission(request, response) {
 function getPostalData(request, response) {
   const shipMethod = request.query.shipMethod;
   const weight = request.query.weight;
-
+  
   // Now call the other methods to do the calculations
   exportedFunctions.data.calculateRate(response, shipMethod, weight);
 }

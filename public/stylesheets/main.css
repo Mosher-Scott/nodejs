@@ -3,10 +3,49 @@ body {
   background: #5A716A;
   width: 100%;
   margin: auto;
+  overflow:hidden;
+  display: flex;
+  flex-direction: column;
+  min-height: 49vw;
 }
+
+body > *{
+  flex-grow: 0;
+}
+
+body > nav + .container {
+  flex-grow: 1;
+}
+
+footer {
+  background: #f8f9fa!important;
+}
+
+form {
+  border: 2px solid #5A716A;
+  padding: 10px;
+}
+
+.right-border {
+  border-right: 2px solid #5A716A;
+}
+
+.bottom-border {
+  border-bottom: 2px solid #5A716A;
+  margin-bottom: 15px;
+}
+
+.padding-15px-left {
+  padding-left: 15px;
+}
+
 .container {
   background: #8CDFD6;
   min-height: 400px;
+}
+
+.green-border-2px {
+  border: 2px solid #5A716A;
 }
 
 .jumbotron {

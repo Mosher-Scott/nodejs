@@ -1,15 +1,43 @@
 <!DOCTYPE html>
 <html>
 <head>
+    <title>Shipping Estimate</title>
     <% include ../partials/header.ejs %>
 </head>
 
 <body>
     <% include ../partials/nav.ejs %>
-    <h1>Postage Result</h1>
-    <p><b>Shipping Method: </b><%= shipMethod %></p>
-    <p><b>Weight: </b><%= packageWeight %></p> 
-    <p><b>Total :</b>$<%= total %> </p>
+
+    <div class="container">
+        <div id='topHeader' class='text-center bottom-border'>
+            <h1>Postage Result</h1>
+        </div>
+
+        <div id='content'>
+            <div class="row">
+                <div class="col-sm-6 right-border">
+                    <p>This page displays the result of your shipping calculation.</p>
+                    <p>If you entered an invalid weight, you'll see an error message in place of a total. I accomplished this by using an if/else statement in my ejs file based on the message returned from the json file.</p>
+                    <p>I've also added functionality to take the select option name that the user picked for shipping, such as "first-class-flat-rate-envelope", and replace the "-" characters with a white space, and then capitalized the first letter of each word.</p>
+                </div>
+    
+                <div class='col-sm-6'>
+                    <p><b>Shipping Method: </b><%= shipMethod %></p>
+                    <p><b>Weight: </b><%= packageWeight %></p> 
+                    
+                        <% if(total == "Invalid Weight") { %>
+                            <p><b>Total:<span class="text-danger"> Error. Weight must be 13 or less.</span></b></p>
+
+                        <% } else { %>
+                            <p><b>Total:</b> $<%= total %> </p>
+                        <% } %>
+                        
+                        
+                </div>
+            </div>
+        </div>
+    </div>
+    <% include ../partials/footer.ejs %>
 </body>
 </html>
 

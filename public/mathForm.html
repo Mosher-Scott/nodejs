@@ -2,12 +2,12 @@
 <html>
 <head>
     <meta charset="utf-8">
-
+    <title>Calculator</title>
     <meta name="description" content="Home">
     <meta name="author" content="Scott Mosher">
     <meta content="width=device-width, initial-scale=1" name="viewport" />
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
-
+    <link rel="stylesheet" type="text/css" href="/stylesheets/main.css" />
     <script src="scripts/functions.js"></script>
 </head>
 
@@ -30,40 +30,54 @@
         </li>
       </ul>
     </div>
-</nav>
+  </nav>
 
+  <div class="container">
+    <h1 class="text-center">Math Calculator</h1>
 
-  <h1>Calculator</h1>
+    <div class="row">
+      <div class="col-sm-6 right-border">
+        <p>This page contains a single math calculator. The user will enter two numbers, and then pick an operation to be performed on those numbers.</p>
+        <p>As a side note, this form does <b>NOT</b> include validations on the user inputted values.</b></p>
+        <p>Once the user clicks "Submit", they will be taken to a new page that displays the total.  The user can also click on the "Ajax math!" button, and that will display the total on the same page.</p>
+      </div>
 
-  <div>
-    <form method="get", action='../mathsubmission'>
-      <div class="form-group">
-        <label for="numOneInput">First Number</label>
-        <input type="text" class="form-control" id="numOneInput" name="numOneInput" aria-describedby="numOneHelp" placeholder="Enter First Number">
-        <small id="numOneHelp" class="form-text text-muted">Please enter a valid number</small>
+      <div class="col-sm-6">
+        <div class='col-sm-10'>
+          <form method="get", action='../mathsubmission'>
+            <div class="form-group">
+              <label for="numOneInput">First Number</label>
+              <input type="text" class="form-control col-sm-10" id="numOneInput" name="numOneInput" aria-describedby="numOneHelp" placeholder="Enter First Number">
+              <small id="numOneHelp" class="form-text text-muted">Number can be positive or negative</small>
+            </div>
+            <div class="form-group">
+              <label for="numTwoInput">Second Number</label>
+              <input type="text" class="form-control col-sm-10" id="numTwoInput" name="numTwoInput" aria-describedby="numTwoHelp" placeholder="Enter Second Number">
+              <small id="numTwoHelp" class="form-text text-muted">Number can be positive or negative</small>
+            </div>
+            <div class="form-group">
+              <label for="operator">Please pick an operation</label>
+              <select name="operator" id="operator">
+                <option value = "+">+</option>
+                <option value = "-">-</option>
+                <option value = "*">x</option>
+                <option value = "/">/</option>
+              </select>
+            </div>
+            <button type="submit" class="btn btn-primary">Submit</button>
+          </form>
+        </div>
+        <div class="padding-15px-left ">
+          <br>
+          <button type="button" onclick="getInfo()" class="btn btn-primary">Ajax Math!</button>
+          <p>Your total is: <span id="answer">0</span>.</p>
+        </div>
       </div>
-      <div class="form-group">
-        <label for="numTwoInput">Second Number</label>
-        <input type="text" class="form-control" id="numTwoInput" name="numTwoInput" aria-describedby="numTwoHelp" placeholder="Enter Second Number">
-        <small id="numTwoHelp" class="form-text text-muted">Please enter a valid number</small>
-      </div>
-      <div class="form-group">
-        <label for="operator">Please pick an operation</label>
-        <select name="operator" id="operator">
-          <option value = "+">+</option>
-          <option value = "-">-</option>
-          <option value = "*">x</option>
-          <option value = "/">/</option>
-        </select>
-      </div>
-      <button type="submit" class="btn btn-primary">Submit</button>
-    </form>
+    </div>
   </div>
-  <div>
-    <br>
-    <button type="button" onclick="getInfo()" class="btn btn-primary">Ajax Math!</button>
-    <p>Your total is: <span id="answer"></span></p>
-  </div>
 
+  <footer class='text-center'>
+    <p>Copyright 2020 Scott Mosher</p>
+  </footer>
 </body>
 </html>

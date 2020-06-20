@@ -1,13 +1,32 @@
 <!DOCTYPE html>
 <html>
     <head>
+        <title>Calculation Result</title>
         <% include ../partials/header.ejs %>
     </head>
       
 <body>
     <% include ../partials/nav.ejs %>
-    <h1>Result</h1>
-    <p>The result of <%= firstNumber %> <%= operationUsed %> <%= secondNumber %> = <%= result %></p>
+
+    <div class="container">
+        <div id='topHeader' class='text-center bottom-border'>
+            <h1>Math Calculation Result</h1>
+        </div>
+    
+        <div id='content'>
+            <div class="row">
+                <div class="col-sm-6 right-border">
+                    <p>After clicking the "Submit" button, you were sent here through a get request.  In the background the system directed you to this page, then took the information in the GET request and processed it.</p>
+                    <p>To the right, you'll be able to see the numbers entered and operation you picked, along with your result.</p>
+                </div> 
+                <div class='col-sm-6'>
+                    <p>The result of <%= firstNumber %> <%= operationUsed %> <%= secondNumber %> = <%= result %></p>
+                </div> 
+            </div> 
+        </div>
+    </div>
+
+    <% include ../partials/footer.ejs %>
 </body>
 </html>
 

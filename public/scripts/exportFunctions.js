@@ -37,24 +37,30 @@ var methods = {
 
     // Called when you want to start calculating shipping rates.  Will return the values to the calling page
     calculateRate: function(response, method, weight) {
-
         var shipTotal = 0;
-    
+
         switch(method) {
-            case "flat":
+            case "first-class-flat-rate-envelope":
                 shipTotal = methods.calculateFirstClassFlatPrices(weight);
                 break;
-            case "package":
+            case "first-class-package":
                 shipTotal = methods.calculateFirstClassPackageRates(weight);
                 break;
             default:
-                shipTotal = 0;
+                shipTotal = "invalid";
                 break;
         }
+
+        // Now configure the shipping method names that are returned.  First remove the dash and replace it with a space
+        var method = method.split("-").join(" ");
+
+        // use a regular expression to capitalize the first letter of each word
+        var method = method.replace(/(^\w|\s\w)/g, m => m.toUpperCase());
 
         // Create our JSON for returning the values
         const result = {shipMethod: method, packageWeight: weight, total: shipTotal};
 
+        console.log(result);
         // Render the results for the page we want it to go to
         response.render('pages/postalEstimate.ejs', result);
     },
@@ -65,39 +71,49 @@ var methods = {
         var shipTotal = 0;
     
         if (weight <= 4) {
-            shipTotal = 3.8;
+            shipTotal = 3.80;
         } else if (weight >= 5 && weight <=8) {
-            shipTotal = 4.6;
+            shipTotal = 4.60;
         } else if (weight >= 9 && weight <=12) {
-            shipTotal = 5.3;
+            shipTotal = 5.30;
         } else if (weight == 13) {
-            shipTotal = 5.9;
+            shipTotal = 5.90;
+        } else if (weight > 13) {
+            shipTotal = "Invalid Weight";
         }
+
+        console.log("Ship total: ", shipTotal);
     
         return shipTotal;
     },
     
     // Will handle the actual calculation of the flat rate envelope pricing
     calculateFirstClassFlatPrices: function(weight) {
-    
-        // Create an object with the weight as the key
-        var firstClassEnvFlatPrices = {
-            1: 1,
-            2: 1.2,
-            3: 1.4,
-            4: 1.6,
-            5: 1.8,
-            6: 2,
-            7: 2.2,
-            8: 2.4,
-            9: 2.6,
-            10: 2.8,
-            11: 3,
-            12: 3.2,
-            13: 3.4
+       console.log("Weight: ", weight);
+        if (weight > 13) {
+            return "Invalid Weight";
+        } else {
+            // Create an object with the weight as the key
+            var firstClassEnvFlatPrices = {
+                1: 1.00,
+                2: 1.20,
+                3: 1.40,
+                4: 1.60,
+                5: 1.80,
+                6: 2.00,
+                7: 2.20,
+                8: 2.40,
+                9: 2.60,
+                10: 2.80,
+                11: 3.00,
+                12: 3.20,
+                13: 3.40
+            }
+
+            // Want to make sure the values have 2 spaces before the period
+            return parseFloat(firstClassEnvFlatPrices[weight]).toFixed(2);
         }
-    
-        return firstClassEnvFlatPrices[weight];
+        
     }
 }
 
