@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Client Info</title>
+    <% include ../partials/header.ejs %>
+</head>
+
+<body>
+    <% include ../partials/nav.ejs %>
+
+    <div class="container">
+        <div id='topHeader' class='text-center bottom-border'>
+            <h1>Info for</h1>
+        </div>
+
+        <div id='content'>
+            <div class="row">
+                <div class="col-sm-6 right-border">
+                    <p>This page displays the result of your shipping calculation.</p>
+                    <p>If you entered an invalid weight, you'll see an error message in place of a total. I accomplished this by using an if/else statement in my ejs file based on the message returned from the json file.</p>
+                    <p>I've also added functionality to take the select option name that the user picked for shipping, such as "first-class-flat-rate-envelope", and replace the "-" characters with a white space, and then capitalized the first letter of each word.</p>
+                    
+                </div>
+
+                <div class='col-sm-6'>
+                    <form method="post", action='../clientDetails'>
+                    <div class="form-group">
+                        <label for="numOneInput">First Number</label>
+                        <input type="text" class="form-control col-sm-10" id="numOneInput" name="numOneInput" aria-describedby="numOneHelp" placeholder="Enter First Number">
+                        <small id="numOneHelp" class="form-text text-muted">Number can be positive or negative</small>
+                    </div>
+                    <div class="form-group">
+                        <label for="numTwoInput">Second Number</label>
+                        <input type="text" class="form-control col-sm-10" id="numTwoInput" name="numTwoInput" aria-describedby="numTwoHelp" placeholder="Enter Second Number">
+                        <small id="numTwoHelp" class="form-text text-muted">Number can be positive or negative</small>
+                    </div>
+                    <div class="form-group">
+                        <label for="operator">Please pick an operation</label>
+                        <select name="operator" id="operator">
+                        <option value = "+">+</option>
+                        <option value = "-">-</option>
+                        <option value = "*">x</option>
+                        <option value = "/">/</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Submit</button>
+                    </form>
+                </div>
+                <div class="padding-15px-left ">
+                    <br>
+                    <button type="button" onclick="getInfo()" class="btn btn-primary">Ajax Math!</button>
+                    <p>Your total is: <span id="answer">0</span>.</p>
+                </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+<% include ../partials/footer.ejs %>
+</body>
+</html>

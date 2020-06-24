@@ -42,6 +42,10 @@ express()
 
   .get('/singleClient', getSingleClient)
 
+  .get('/clientDetails', getClientDetails)
+
+  .get('/singleclient2', (req, res) => res.render('pages/getClientDetails'))
+
   .get('/allclients', getAllClients)
 
   // Set up the homepage when the homepage is requested
@@ -68,7 +72,7 @@ function getPostalData(request, response) {
   exportedFunctions.data.calculateRate(response, shipMethod, weight);
 }
 
-// Called to get a single client out of the database
+// Called to get a single client out of the database, mainly for testing
 function getSingleClient(request, response) {
 
   const id = 1;
@@ -95,6 +99,35 @@ function getSingleClient(request, response) {
     }
   }); // End of helper function
 }
+
+// Called to get a single client out of the database
+function getClientDetails(request, response) {
+
+  const id = request.query.id;
+
+  // Helper function
+  getSingleClientFromDb(id, function(error, result) {
+    if (error || result == null) {
+      
+      response.status(500).json({success:false, data:error});
+    } else {
+      const person = result[0];
+
+      // If person is null, there are no results.  Need to handle it
+      if(person == null) {
+        console.log("No results")
+      }
+      //response.status(200).json(person);
+     
+      // Set the header for the response
+      response.status(200);
+
+      // Now display this page with the following data
+      response.render('pages/clientDetails.ejs', person);
+    }
+  }); // End of helper function
+}
+
 
 // Called to get all clients out of the database
 function getAllClients(request, response) {
@@ -146,7 +179,7 @@ function getSingleClientFromDb(id, callback) {
     }
 
     // Checking for debug
-    console.log(JSON.stringify(result.rows))
+    //console.log(JSON.stringify(result.rows))
 
     // Now let the callback function know we're done
     callback(null, result.rows);
@@ -156,7 +189,7 @@ function getSingleClientFromDb(id, callback) {
 
 // This actually connects to the database and runs the query
 function getAllClientsFromDb(callback) {
-  console.log("Now running query");
+  console.log("Now running query to get all clients");
 
   // Use a placeholder for the id
   const sql = "SELECT * FROM client";
@@ -171,7 +204,7 @@ function getAllClientsFromDb(callback) {
     }
 
     // Checking for debug
-    console.log("Result: ", result.rows)
+    // console.log("Result: ", result.rows)
 
     // Now let the callback function know we're done
     callback(null, result.rows);
