@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Client Info</title>
+    <% include ../partials/header.ejs %>
+</head>
+
+<body>
+    <% include ../partials/nav.ejs %>
+
+    <div class="container">
+        <div id='topHeader' class='text-center bottom-border'>
+            <h1>Info for  <%= first_name %> <%= last_name %></h1>
+        </div>
+
+        <div id='content'>
+            <div class="row">
+                <div class="col-sm-6 right-border">
+                    <p>This page displays the result of your shipping calculation.</p>
+                    <p>If you entered an invalid weight, you'll see an error message in place of a total. I accomplished this by using an if/else statement in my ejs file based on the message returned from the json file.</p>
+                    <p>I've also added functionality to take the select option name that the user picked for shipping, such as "first-class-flat-rate-envelope", and replace the "-" characters with a white space, and then capitalized the first letter of each word.</p>
+                    <a href='\postal' class="btn btn-primary">Back to Postal Calculator</a>
+                </div>
+    
+                <div class='col-sm-6'>
+                    <p><b>ID: </b><%= id %></p>
+                    <p><b>First Name: </b><%= first_name %></p> 
+                    <p><b>Last Name:</b> <%= last_name %> </p>
+                    <p><b>Email:</b> <%= email %> </p>
+                    <p><b>Phone:</b> <%= phone %> </p>
+                </div>
+                
+            </div>
+        </div>
+    </div>
+    <% include ../partials/footer.ejs %>
+</body>
+</html>
+

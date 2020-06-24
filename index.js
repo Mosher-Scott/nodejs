@@ -40,14 +40,9 @@ express()
    // When the form is submitted for an estimate on postage
   .get('/estimate', getPostalData)
 
-  .get('/about', function (req, res, next) {
+  .get('/singleClient', getSingleClient)
 
-    queries.rows.getAllClients(pool, results)
-
-    res.send('about')
-  }) // End of /about
-
-  .get('/about2', getSingleClient)
+  .get('/allclients', getAllClients)
 
   // Set up the homepage when the homepage is requested
   //.get('/', (req, res) => res.sendFile(__dirname + '/views/pages/index.ejs'))
@@ -76,7 +71,7 @@ function getPostalData(request, response) {
 // Called to get a single client out of the database
 function getSingleClient(request, response) {
 
-  const id = 8;
+  const id = 1;
 
   // Helper function
   getSingleClientFromDb(id, function(error, result) {
@@ -90,7 +85,43 @@ function getSingleClient(request, response) {
       if(person == null) {
         console.log("No results")
       }
-      response.status(200).json(person);
+      //response.status(200).json(person);
+     
+      // Set the header for the response
+      response.status(200);
+
+      // Now display this page with the following data
+      response.render('pages/clientDetails.ejs', person);
+    }
+  }); // End of helper function
+}
+
+// Called to get all clients out of the database
+function getAllClients(request, response) {
+
+  // Helper function
+  getAllClientsFromDb(function(error, result) {
+    if (error || result == null) {
+      
+      response.status(500).json({success:false, data:error});
+    } else {
+      const clients = result;
+
+      // If person is null, there are no results.  Need to handle it
+      if(clients == null) {
+        console.log("No results")
+      }
+      //response.status(200).json(person);
+     
+      // Set the header for the response
+      response.status(200);
+
+      var clientStuff = JSON.stringify(clients)
+          
+      // Now display this page with the following data
+      response.render('pages/allclients',{clientData: clients});
+      //console.log(clients);
+      console.log(clients[3]['first_name']);
     }
   }); // End of helper function
 }
@@ -119,5 +150,30 @@ function getSingleClientFromDb(id, callback) {
 
     // Now let the callback function know we're done
     callback(null, result.rows);
-  })
-}
+
+  }) // end of query
+} // end of function
+
+// This actually connects to the database and runs the query
+function getAllClientsFromDb(callback) {
+  console.log("Now running query");
+
+  // Use a placeholder for the id
+  const sql = "SELECT * FROM client";
+
+  // Run the query with parameters
+  pool.query(sql, function(err, result) {
+    // check for error
+    if(err) {
+      console.log("an error occurred")
+      console.log(err)
+      callback(err, null);
+    }
+
+    // Checking for debug
+    console.log("Result: ", result.rows)
+
+    // Now let the callback function know we're done
+    callback(null, result.rows);
+  }) // end of query
+} // end of function
