@@ -3,6 +3,7 @@ const express = require('express')
 const path = require('path')
 const PORT = process.env.PORT || 5000
 
+const bodyParser = require("body-parser"); // Used for post requests
 
 // Need this to connect to the DB
 const connectionString = process.env.DATABASE_URL;
@@ -15,13 +16,18 @@ ssl: {rejectUnauthorized: false}});
 
 var functions = require('./public/scripts/functions.js');
 var exportedFunctions = require('./public/scripts/exportFunctions.js');
-var queries = require('./public/scripts/sqlQueries.js');
+var clients = require('./public/scripts/clientQueries.js');
 
 //var mathRouter = require('./routes/math');
 
 express()
 
   .use(express.static(path.join(__dirname, 'public')))
+
+  // Need this to handle post data
+  .use(bodyParser.urlencoded({ extended: false }))
+  .use(bodyParser.json())
+
   //.use(express.static('public'))
   .set('views', [path.join(__dirname, 'views'),
                 path.join(__dirname, 'views/pages')])
@@ -40,9 +46,11 @@ express()
    // When the form is submitted for an estimate on postage
   .get('/estimate', getPostalData)
 
-  .get('/singleClient', getSingleClient)
+  //.get('/singleClient', getSingleClient)
 
-  .get('/clientDetails', getClientDetails)
+  //.get('/clientDetails2', getClientDetails)
+
+  .post('/clientDetails', getClientDetails)
 
   .get('/singleclient2', (req, res) => res.render('pages/getClientDetails'))
 
@@ -73,37 +81,41 @@ function getPostalData(request, response) {
 }
 
 // Called to get a single client out of the database, mainly for testing
-function getSingleClient(request, response) {
+// function getSingleClient(request, response) {
 
-  const id = 1;
+//   const id = 1;
 
-  // Helper function
-  getSingleClientFromDb(id, function(error, result) {
-    if (error || result == null) {
+//   // Helper function
+//   getSingleClientFromDb(id, function(error, result) {
+//     if (error || result == null) {
       
-      response.status(500).json({success:false, data:error});
-    } else {
-      const person = result[0];
+//       response.status(500).json({success:false, data:error});
+//     } else {
+//       const person = result[0];
 
-      // If person is null, there are no results.  Need to handle it
-      if(person == null) {
-        console.log("No results")
-      }
-      //response.status(200).json(person);
+//       // If person is null, there are no results.  Need to handle it
+//       if(person == null) {
+//         console.log("No results")
+//       }
+//       //response.status(200).json(person);
      
-      // Set the header for the response
-      response.status(200);
+//       // Set the header for the response
+//       response.status(200);
 
-      // Now display this page with the following data
-      response.render('pages/clientDetails.ejs', person);
-    }
-  }); // End of helper function
-}
+//       // Now display this page with the following data
+//       response.render('pages/clientDetails.ejs', person);
+//     }
+//   }); // End of helper function
+// }
 
 // Called to get a single client out of the database
+
+// Processes POST data
 function getClientDetails(request, response) {
 
-  const id = request.query.id;
+  // testing
+  // console.log("ID: ", request.body.id);
+  const id = request.body.id;
 
   // Helper function
   getSingleClientFromDb(id, function(error, result) {
@@ -113,17 +125,20 @@ function getClientDetails(request, response) {
     } else {
       const person = result[0];
 
+      console.log(person);
+
       // If person is null, there are no results.  Need to handle it
       if(person == null) {
         console.log("No results")
-      }
-      //response.status(200).json(person);
-     
-      // Set the header for the response
-      response.status(200);
+        response.status(404);
+        
+      } else {
+          // Set the header for the response
+          response.status(200);
 
-      // Now display this page with the following data
-      response.render('pages/clientDetails.ejs', person);
+          // Now display this page with the following data
+          response.render('pages/clientDetails.ejs', person);
+      }
     }
   }); // End of helper function
 }
@@ -154,7 +169,7 @@ function getAllClients(request, response) {
       // Now display this page with the following data
       response.render('pages/allclients',{clientData: clients});
       //console.log(clients);
-      console.log(clients[3]['first_name']);
+      //console.log(clients[3]['first_name']);
     }
   }); // End of helper function
 }

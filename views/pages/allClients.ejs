@@ -50,6 +50,13 @@
                                     <td><%= client.phone %></td>
                                     <td><%= client.email %></td>
                                     <td><a href="/clientDetails?id=<%= client.id %>">Details</a></td>
+                                    <td>
+                                        <form method="post" action='../clientDetails'>
+
+                                            <input type="hidden" name="id" value="<%= client.id %>"></input>
+                                            <button type="submit" class="btn btn-primary">Submit</button>
+                                        </form>
+                                    </td>
                                 </tr>
                                 <% };%>
                                 
