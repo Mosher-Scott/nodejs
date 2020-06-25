@@ -6,7 +6,7 @@ const PORT = process.env.PORT || 5000
 const bodyParser = require("body-parser"); // Used for post requests
 
 // Need this to connect to the DB
-const connectionString = process.env.DATABASE_URL;
+const connectionString = process.env.DATABASE_URL || "postgres://erlpzgduapjutd:8e441a6e94c2303b22cba3f9e49299b4512d7ad674471a1bfa9774a026e23e44@ec2-34-230-231-71.compute-1.amazonaws.com:5432/d89mifq9oa741m?ssl=true"
 
 const { Pool } = require('pg')
 // const pool = new Pool();
