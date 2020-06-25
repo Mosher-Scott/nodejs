@@ -16,6 +16,7 @@ const pool = new Pool({connectionString: connectionString});
 var functions = require('./public/scripts/functions.js');
 var exportedFunctions = require('./public/scripts/exportFunctions.js');
 var clients = require('./public/scripts/clientQueries.js');
+const { stringify } = require('querystring');
 
 //var mathRouter = require('./routes/math');
 
@@ -49,11 +50,17 @@ express()
 
   //.get('/clientDetails2', getClientDetails)
 
+  // Post request to get data
   .post('/clientDetails', getClientDetails)
 
-  .get('/singleclient2', (req, res) => res.render('pages/getClientDetails'))
+  // Testing
+  //.get('/singleclient2', (req, res) => res.render('pages/getClientDetails'))
 
-  .get('/allclients', getAllClients)
+  // Generic route to take you to the clients page
+  //.get('/clients', getAllClients)
+  .get('/clients', (req, res) => res.render('clients'))
+
+  .get('/allClients', getAllClientsJSON)
 
   // Set up the homepage when the homepage is requested
   //.get('/', (req, res) => res.sendFile(__dirname + '/views/pages/index.ejs'))
@@ -79,35 +86,68 @@ function getPostalData(request, response) {
   exportedFunctions.data.calculateRate(response, shipMethod, weight);
 }
 
-// Called to get a single client out of the database, mainly for testing
-// function getSingleClient(request, response) {
+// Called to get all clients out of the database, and renders the html page
+function getAllClientsJSON(request, response) {
 
-//   const id = 1;
-
-//   // Helper function
-//   getSingleClientFromDb(id, function(error, result) {
-//     if (error || result == null) {
+  // Helper function
+  getAllClientsFromDb(function(error, result) {
+    if (error || result == null) {
       
-//       response.status(500).json({success:false, data:error});
-//     } else {
-//       const person = result[0];
+      response.status(500).json({success:false, data:error});
+      response.render(error);
+    } else {
+      const clients = result;
 
-//       // If person is null, there are no results.  Need to handle it
-//       if(person == null) {
-//         console.log("No results")
-//       }
-//       //response.status(200).json(person);
+      // If person is null, there are no results.  Need to handle it
+      if(clients == null) {
+        console.log("No results")
+      }
+      //response.status(200).json(person);
      
-//       // Set the header for the response
-//       response.status(200);
+      // Set the header for the response
+      response.status(200);
+          
+      response.setHeader('Content-Type', 'application/json');
+      // Now display this page with the following data
+     // response.render('pages/clientDetails.ejs', person);
 
-//       // Now display this page with the following data
-//       response.render('pages/clientDetails.ejs', person);
-//     }
-//   }); // End of helper function
-// }
+      response.json(clients);
+    }
+  }); // End of helper function
+}
 
 // Called to get a single client out of the database
+// Processes POST data
+function getClientDetailsJSON(request, response) {
+
+  // testing
+  // console.log("ID: ", request.body.id);
+  const id = request.body.id;
+
+  // Helper function
+  getSingleClientFromDb(id, function(error, result) {
+    if (error || result == null) {
+      
+      response.status(500).json({success:false, data:error});
+    } else {
+      const person = result[0];
+
+      console.log(person);
+
+      // If person is null, there are no results.  Need to handle it
+      if(person == null) {
+        console.log("No results")
+        response.status(404);
+        
+      } else {
+        // Set the header for the response
+        response.status(200);
+        response.setHeader('Content-Type', 'application/json');
+        response.json(person);
+      }
+    }
+  }); // End of helper function
+}
 
 // Processes POST data
 function getClientDetails(request, response) {
@@ -134,16 +174,18 @@ function getClientDetails(request, response) {
       } else {
           // Set the header for the response
           response.status(200);
-
+          response.setHeader('Content-Type', 'html');
           // Now display this page with the following data
           response.render('pages/clientDetails.ejs', person);
+
+         //response.json(person);
       }
     }
   }); // End of helper function
 }
 
 
-// Called to get all clients out of the database
+// Called to get all clients out of the database, and renders the html page
 function getAllClients(request, response) {
 
   // Helper function
@@ -167,7 +209,7 @@ function getAllClients(request, response) {
       var clientStuff = JSON.stringify(clients)
           
       // Now display this page with the following data
-      response.render('pages/allClients',{clientData: clients});
+      response.render('pages/clientsTest',{clientData: clients});
       //console.log(clients);
       //console.log(clients[3]['first_name']);
     }
