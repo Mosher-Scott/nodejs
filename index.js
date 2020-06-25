@@ -167,7 +167,7 @@ function getAllClients(request, response) {
       var clientStuff = JSON.stringify(clients)
           
       // Now display this page with the following data
-      response.render('pages/allclients',{clientData: clients});
+      response.render('pages/allClients',{clientData: clients});
       //console.log(clients);
       //console.log(clients[3]['first_name']);
     }
