@@ -66,7 +66,6 @@ function getClientDetails(id) {
 
     request.onload = function() {
         var data = request.response;
-
         showClientDetails(data);
     }
 
@@ -307,7 +306,7 @@ function createClientTable(data) {
 
 function displayTrainingSessions(id) {
     
-    //getClientDetails(id);
+    getClientDetails(id);
     getTrainingSessions(id);
 }
 
