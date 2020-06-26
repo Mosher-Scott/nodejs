@@ -50,8 +50,11 @@ express()
 
   //.get('/clientDetails2', getClientDetails)
 
-  // Post request to get data
+  // get request to get data
   .get('/clientDetails', getClientDetailsJSON)
+
+  // Returns a list of training sessions assigned to a client
+  .get('/clientTrainingSessions', getClientTrainingSessionsJSON)
 
   // Testing
   //.get('/singleclient2', (req, res) => res.render('pages/getClientDetails'))
@@ -100,7 +103,9 @@ function getAllClientsJSON(request, response) {
 
       // If person is null, there are no results.  Need to handle it
       if(clients == null) {
-        console.log("No results")
+        console.log("No clients found");
+        response.status(404);
+        response.end();
       }
       //response.status(200).json(person);
      
@@ -137,14 +142,49 @@ function getClientDetailsJSON(request, response) {
 
       // If person is null, there are no results.  Need to handle it
       if(person == null) {
-        console.log("No results")
+        console.log("No client found with ID of " + id)
         response.status(404);
+        response.end();
         
       } else {
         // Set the header for the response
         response.status(200);
         response.setHeader('Content-Type', 'application/json');
         response.json(person);
+      }
+    }
+  }); // End of helper function
+}
+
+// Gets all training sessions assigned to a specific client 
+// Processes GET data
+function getClientTrainingSessionsJSON(request, response) {
+
+  // testing
+  // console.log("ID: ", request.body.id);
+ // const id = request.body.id; // For post request
+  const id = request.query.clientId;
+
+  // Helper function
+  getTrainingSessionDetailsFromDB(id, function(error, result) {
+    if (error || result == "undefined") {
+      
+      response.status(404).json({success:false, data:error});
+      response.json("");
+    } else {
+      const sessions = result;
+
+      // If person is null, there are no results.  Need to handle it
+      if(sessions == null) {
+        console.log("No training sessions found for client ID" + id)
+        response.status(404);
+        response.end();
+        
+      } else {
+        // Set the header for the response
+        response.status(200);
+        response.setHeader('Content-Type', 'application/json');
+        response.json(sessions);
       }
     }
   }); // End of helper function
@@ -254,6 +294,33 @@ function getAllClientsFromDb(callback) {
 
   // Run the query with parameters
   pool.query(sql, function(err, result) {
+    // check for error
+    if(err) {
+      console.log("an error occurred")
+      console.log(err)
+      callback(err, null);
+    }
+
+    // Checking for debug
+    // console.log("Result: ", result.rows)
+
+    // Now let the callback function know we're done
+    callback(null, result.rows);
+  }) // end of query
+} // end of function
+
+// This actually connects to the database and runs the query
+function getTrainingSessionDetailsFromDB(id, callback) {
+  console.log("Now running query to get client training session details");
+
+  // Use a placeholder for the id
+  const sql = "SELECT ts.id, ts.sessiondescription, ts.sessionName, ts.setReps FROM trainingsessions AS ts join clienttrainingsessions AS cts ON cts.sessionid = ts.id WHERE cts.clientid = $1::int";
+
+  // Create an array to hold all parameters
+  const params = [id];
+
+  // Run the query with parameters
+  pool.query(sql, params, function(err, result) {
     // check for error
     if(err) {
       console.log("an error occurred")
