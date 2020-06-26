@@ -51,7 +51,7 @@ express()
   //.get('/clientDetails2', getClientDetails)
 
   // Post request to get data
-  .post('/clientDetails', getClientDetails)
+  .get('/clientDetails', getClientDetailsJSON)
 
   // Testing
   //.get('/singleclient2', (req, res) => res.render('pages/getClientDetails'))
@@ -117,12 +117,13 @@ function getAllClientsJSON(request, response) {
 }
 
 // Called to get a single client out of the database
-// Processes POST data
+// Processes GET data
 function getClientDetailsJSON(request, response) {
 
   // testing
   // console.log("ID: ", request.body.id);
-  const id = request.body.id;
+ // const id = request.body.id; // For post request
+  const id = request.query.id;
 
   // Helper function
   getSingleClientFromDb(id, function(error, result) {

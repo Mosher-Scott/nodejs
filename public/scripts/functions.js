@@ -52,18 +52,50 @@ function getAllClients() {
         createClientTable(data);
     }
 }
-    // TODO Create a function to remove everything inside of the #response div
+
+// Gets client details
+function getClientDetails(id) {
+    var request = new XMLHttpRequest();
+
+    var url = '/clientDetails?id=' + id;
+
+    request.open('GET', url ,true);
+    request.responseType = 'json';
+
+    request.send();
+
+    request.onload = function() {
+        var data = request.response;
+
+        console.log(data);
+
+        showClientDetails(data);
+    }
+
+}
+
+function removeDataFromClients() {
+     // The div that contains all the responses
+     var baseDiv = document.querySelector('#response');
+    baseDiv.textContent = '';
+}
+
+// Creates a table with client details
+function showClientDetails(data){
+    console.log(data);
+}
 
 // Creates a table displaying data for all clients
 function createClientTable(data) {
 
-
+    removeDataFromClients();
 
     // The div that will contain the table
     var baseDiv = document.querySelector('#response');
 
     var table = document.createElement('table');
     table.classList=('table table-striped')
+    table.id = "clientList";
     var thead = document.createElement('thead');
 
     // Now create the row & headers
@@ -131,21 +163,22 @@ function createClientTable(data) {
         tr.appendChild(email);
 
         // Details Button
+        var id = data[i].id;
         var details = document.createElement('td');
-        var viewDetails = document.createElement('button');
-        viewDetails.onclick = function() {alert("I would be viewing details")};
-        viewDetails.classList = "btn btn-primary btn-sm";
-        viewDetails.textContent = "Details";
-        details.appendChild(viewDetails);
+        var span = document.createElement('span');
+        span.innerHTML = "<button id='button" + id + "' class='btn btn-primary btn-sm' onclick='getClientDetails(" + id + ")' ?>Details</button>";
+        //var viewDetails = document.createElement('button');
+
+        // viewDetails.classList = "btn btn-primary btn-sm";
+        // viewDetails.textContent = "Details";
+        details.appendChild(span);
         tr.appendChild(details);
 
         // Delete Button
         var deletething = document.createElement('td');
-        var deleteButton = document.createElement('button');
-        deleteButton.classList = "btn btn-primary btn-sm";
-        deleteButton.onclick = function() {alert("Delete me")};
-        deleteButton.textContent = "Delete";
-        deletething.appendChild(deleteButton);
+        var deleteSpan = document.createElement('span');
+        deleteSpan.innerHTML = "<button id='button" + id + "' class='btn btn-primary btn-sm' onclick='deleteClient(" + id + ")' ?>Delete</button>";
+        deletething.appendChild(deleteSpan);
         tr.appendChild(deletething);
 
         tbody.appendChild(tr);
@@ -156,5 +189,10 @@ function createClientTable(data) {
 
     baseDiv.appendChild(table);
 
+}
+
+
+function deleteClient(id) {
+    alert("Delete: " + id);
 }
 
