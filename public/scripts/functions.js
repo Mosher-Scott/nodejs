@@ -338,6 +338,7 @@ function createTrainingSessionTable(data){
     thr.appendChild(th4);
     thr.appendChild(th5);
 
+    // Attach everything to the header of the table
     thead.appendChild(thr);
 
     var tbody = document.createElement('tbody');
