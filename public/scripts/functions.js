@@ -53,7 +53,7 @@ function getAllClients() {
     }
 }
 
-// Request to get client details for individuals
+// Request to get details for an individual client
 function getClientDetails(id) {
     var request = new XMLHttpRequest();
 
@@ -92,19 +92,8 @@ function getTrainingSessions(id) {
         console.log(data);
 
         //TODO: Now do something with the data
+        createTrainingSessionTable(data);
     }
-
-    // // Check for a valid response type
-    // if (request.status == 200) {
-    //     request.onload = function() {
-    //         var data = request.response;
-    
-    //         console.log(data);
-    //     }
-    // } else {
-    //     console.log(request.responseType);
-    // }
-
 }
 
 function removeDataFromClients() {
@@ -308,6 +297,86 @@ function displayTrainingSessions(id) {
     
     getClientDetails(id);
     getTrainingSessions(id);
+}
+
+// Creates a table containing all the training sessions assigned to a client
+function createTrainingSessionTable(data){
+   
+    // The div that will contain the table
+    var baseDiv = document.querySelector('#response');
+
+    var table = document.createElement('table');
+    table.classList=('table table-striped')
+    table.id = "clientList";
+    var thead = document.createElement('thead');
+
+    // Now create the row & headers
+    var thr = document.createElement('tr');
+    var th1 = document.createElement('th');
+    th1.classList.add("scope='col'");
+    th1.textContent = "ID";
+
+    var th2 = document.createElement('th');
+    th2.classList.add("scope='col'");
+    th2.textContent = "Name";
+
+    var th3 = document.createElement('th');
+    th3.classList.add("scope='col'");
+    th3.textContent = "Reps per Set";
+
+    var th4 = document.createElement('th');
+    th4.classList.add("scope='col'");
+    th4.textContent = "Description";
+
+    var th5 = document.createElement('th');
+    th5.classList.add("scope='col'");
+    th5.textContent = "Options";
+
+    thr.appendChild(th1);
+    thr.appendChild(th2);
+    thr.appendChild(th3);
+    thr.appendChild(th4);
+    thr.appendChild(th5);
+
+    thead.appendChild(thr);
+
+    var tbody = document.createElement('tbody');
+
+    for(var i = 0; i < data.length; i++) {
+        var tr = document.createElement('tr');
+
+        // ID row
+        var id = document.createElement('td');
+        id.textContent = data[i].id;
+        tr.appendChild(id);
+
+        // Name
+        var name = document.createElement('td');
+        name.textContent = data[i].sessionName;
+        tr.appendChild(name);
+
+        // Reps per set
+        var repsPerSet = document.createElement('td');
+        repsPerSet.textContent = data[i].setReps;
+        tr.appendChild(repsPerSet);
+
+        // Description
+        var description = document.createElement('td');
+        description.textContent = data[i].sessionDescription;
+        tr.appendChild(description);
+
+        // Description
+        var options = document.createElement('td');
+        options.textContent = data[i].sessionDescription;
+        tr.appendChild(options);
+
+        tbody.appendChild(tr);
+    }
+
+    table.appendChild(thead);
+    table.appendChild(tbody);
+
+    baseDiv.appendChild(table);
 }
 
 function deleteClient(id) {
