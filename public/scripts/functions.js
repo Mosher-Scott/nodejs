@@ -36,92 +36,7 @@ function performMathOperations (operator, numOne, numTwo) {
     return result;
 }
 
-// Gets a list of all clients in the database, and creates a table for them all
-function getAllClients() {
-    var request = new XMLHttpRequest();
 
-    request.open('GET', '/allClients',true);
-    request.responseType = 'json';
-
-    request.send();
-
-    request.onload = function() {
-        var data = request.response;
-
-        console.log(data);
-
-        createClientTable(data);
-    }
-}
-
-// Request to get details for an individual client
-function getClientDetails(id) {
-    var request = new XMLHttpRequest();
-
-    var url = '/clientDetails?id=' + id;
-
-    request.open('GET', url ,true);
-    request.responseType = 'json';
-
-    request.send();
-
-    request.onload = function() {
-        var data = request.response;
-        showClientDetails(data);
-    }
-
-}
-
-// Request to get all training sessions assigned to a specific client
-function getTrainingSessions(id) {
-
-    var request = new XMLHttpRequest();
-
-    var url = '/clientTrainingSessions?clientId=' + id;
-
-    console.log(url);
-    
-    request.open('GET', url ,true);
-    request.responseType = 'json';
-
-    request.send();
-    // console.log(request.status);
-
-    request.onload = function() {
-        var data = request.response;
-
-        console.log(data);
-
-        //TODO: Now do something with the data
-        createTrainingSessionTable(data);
-    }
-}
-
-// Request to get all training sessions assigned to a specific client
-function getTrainingSessionExercises(id) {
-    console.log(id);
-    var request = new XMLHttpRequest();
-
-    var url = '/trainingSessionExercises?sessionId=' + id;
-
-    console.log(url);
-    
-    request.open('GET', url ,true);
-    request.responseType = 'json';
-
-    request.send();
-    console.log(request.status);
-
-    request.onload = function() {
-        var data = request.response;
-
-        console.log(data);
-
-        //TODO: Now do something with the data
-        // createExercisesSection(data);
-        createExercisesTable(data);
-    }
-}
 
 // Change the text of the "All Clients" button
 function changeViewAllClientButton(text)
@@ -252,6 +167,58 @@ function showClientDetails(data){
     table.appendChild(tbody);
 
     baseDiv.appendChild(table);
+}
+
+// Creates a form with client details
+// data = information retrieved from the database
+function addClientForm(){
+    
+    // Get the H1 tag and change the text
+    var title = document.getElementById('pageTitle');
+    title.textContent = 'Add New Client';
+
+    // Change the browser tab text
+    var pageTitle = document.getElementById('browserTabName')
+    pageTitle.textContent = 'Add New Client';
+
+    // Change the "View All" button text
+    changeViewAllClientButton('Back');
+
+    // Remove the content already there
+    removeDataFromClients();
+
+    // console.log(data);
+    var baseDiv = document.querySelector('#response');
+
+    // Now create the form
+    var form = document.createElement('form');
+    form.method = "POST";
+
+    var firstNameDiv = document.createElement("div");
+    firstNameDiv.classList.add("form-group");
+
+    var firstNameLabel = document.createElement("label");
+    firstNameLabel.setAttribute("for", "firstName");
+    firstNameLabel.textContent = "First Name";
+
+    var firstNameInput = document.createElement("input");
+    firstNameInput.type = "text";
+    firstNameInput.classList.add("form-control");
+    firstNameInput.name = "firstNameInput";
+
+    firstNameDiv.appendChild(firstNameLabel);
+    firstNameDiv.appendChild(firstNameInput);
+    form.appendChild(firstNameDiv);
+
+
+    // Submit button
+    var submitButton = document.createElement('button');
+    submitButton.value = "submit";
+    submitButton.classList.add("btn");
+    submitButton.classList.add("btn-primary");
+    submitButton.textContent = "Submit";
+    form.appendChild(submitButton);
+    baseDiv.appendChild(form);
 }
 
 //

@@ -46,10 +46,6 @@ express()
    // When the form is submitted for an estimate on postage
   .get('/estimate', getPostalData)
 
-  //.get('/singleClient', getSingleClient)
-
-  //.get('/clientDetails2', getClientDetails)
-
   // get request to get data
   .get('/clientDetails', getClientDetailsJSON)
 
@@ -58,20 +54,32 @@ express()
 
   // Returns a list of training sessions assigned to a client
   .get('/trainingSessionExercises', getTrainingSessionExercisesJSON)
+
+  // Returns a list of all training sessions
+  .get('/allTrainingSessions', getAllTrainingSessionsJSON)
+
+  // Homepage for clients
+  .get('/clients', (req, res) => res.render('clients', {
+    clientInfo: "test"
+  }))
+
+  // Post data for adding a new client
+  .post('/clients', addNewClient)
+
+  .get('/allClients', getAllClientsJSON)
  
 
   // Testing
   //.get('/singleclient2', (req, res) => res.render('pages/getClientDetails'))
-
+  //.get('/singleClient', getSingleClient)
+  //.get('/clientDetails2', getClientDetails)
   // Generic route to take you to the clients page
   //.get('/clients', getAllClients)
-  .get('/clients', (req, res) => res.render('clients'))
 
-  .get('/allClients', getAllClientsJSON)
 
   // Set up the homepage when the homepage is requested
   //.get('/', (req, res) => res.sendFile(__dirname + '/views/pages/index.ejs'))
-  .get('/', (req, res) => res.render('index'))
+  .get('/', (req, res) => res.render('index') )
   .listen(PORT, () => console.log(`Listening on ${ PORT }`))
 
 // Get the form submission for a simple calculator
@@ -125,6 +133,32 @@ function getAllClientsJSON(request, response) {
   }); // End of helper function
 }
 
+// Will process new client data & add it to the database
+function addNewClient(request, response) {
+ // console.log(request);
+
+  const firstName = request.body.firstNameInput;
+  const lastName = request.body.lastNameInput;
+  const phone = request.body.phoneInput;
+  const email = request.body.emailInput;
+
+  //console.log(firstName, lastName, phone, email);
+
+  // Helper function to insert the data
+  insertNewClientIntoDB(firstName, lastName, phone, email, function(error, result) {
+    if (error || result == null) {
+      response.status(500).json({success:false, data:error});
+  } else {
+    // Set the header for the response
+      response.status(200);
+      response.setHeader('Content-Type', 'text/html');
+
+      console.log(result);
+      response.render('pages/clients.ejs', {clientInfo: result});
+    }
+  }) // end of helper function
+}
+
 // Called to get a single client out of the database
 // Processes GET data
 function getClientDetailsJSON(request, response) {
@@ -164,9 +198,6 @@ function getClientDetailsJSON(request, response) {
 // Processes GET data
 function getClientTrainingSessionsJSON(request, response) {
 
-  // testing
-  // console.log("ID: ", request.body.id);
- // const id = request.body.id; // For post request
   const id = request.query.clientId;
 
   // Helper function
@@ -193,6 +224,34 @@ function getClientTrainingSessionsJSON(request, response) {
     }
   }); // End of helper function
 }
+
+function getAllTrainingSessionsJSON(request, response) {
+
+  // Helper function
+  getAllTrainingSessionsFromDB(function(error, result) {
+    if (error || result == "undefined") {
+      
+      response.status(404).json({success:false, data:error});
+      response.json("");
+    } else {
+      const sessions = result;
+
+      // If person is null, there are no results.  Need to handle it
+      if(sessions == null) {
+        console.log("Error, nothing found")
+        response.status(404);
+        response.end();
+        
+      } else {
+        // Set the header for the response
+        response.status(200);
+        response.setHeader('Content-Type', 'application/json');
+        response.json(sessions);
+      }
+    }
+  }); // End of helper function
+}
+
 
 // Gets all exercises attached to a training session
 function getTrainingSessionExercisesJSON(request, response) {
@@ -223,42 +282,6 @@ function getTrainingSessionExercisesJSON(request, response) {
     }
   }); // End of helper function
 }
-
-// Processes POST data
-function getClientDetails(request, response) {
-
-  // testing
-  // console.log("ID: ", request.body.id);
-  const id = request.body.id;
-
-  // Helper function
-  getSingleClientFromDb(id, function(error, result) {
-    if (error || result == null) {
-      
-      response.status(500).json({success:false, data:error});
-    } else {
-      const person = result[0];
-
-      console.log(person);
-
-      // If person is null, there are no results.  Need to handle it
-      if(person == null) {
-        console.log("No results")
-        response.status(404);
-        
-      } else {
-          // Set the header for the response
-          response.status(200);
-          response.setHeader('Content-Type', 'html');
-          // Now display this page with the following data
-          response.render('pages/clientDetails.ejs', person);
-
-         //response.json(person);
-      }
-    }
-  }); // End of helper function
-}
-
 
 // Called to get all clients out of the database, and renders the html page
 function getAllClients(request, response) {
@@ -371,6 +394,35 @@ function getAllClientsFromDb(callback) {
   }) // end of query
 } // end of function
 
+// Query for inserting a new user into the database
+function insertNewClientIntoDB(firstName, lastName, phone, email, callback) {
+  console.log("Now running query to insert a new client");
+  
+  // Create an array to hold all parameters
+  const params = [firstName, lastName, phone, email];
+
+  // Use a placeholder for the id
+  const sql = "INSERT INTO client (first_name, last_name, phone, email) VALUES ($1, $2, $3, $4) RETURNING *";
+
+  // Run the query with parameters
+  pool.query(sql, params, function(err, result) {
+    // check for error
+    if(err) {
+      console.log("an error occurred")
+      console.log(err)
+      callback(err, null);
+    }
+    
+    // Checking for debug
+    // console.log("Result: ", result.rows)
+
+    // Now let the callback function know we're done
+    callback(null, result.rows[0]);
+
+  }) // end of query
+}
+
+
 // Query to get client training session details
 function getTrainingSessionDetailsFromDB(id, callback) {
   console.log("Now running query to get client training session details");
@@ -383,6 +435,30 @@ function getTrainingSessionDetailsFromDB(id, callback) {
 
   // Run the query with parameters
   pool.query(sql, params, function(err, result) {
+    // check for error
+    if(err) {
+      console.log("an error occurred")
+      console.log(err)
+      callback(err, null);
+    }
+
+    // Checking for debug
+    // console.log("Result: ", result.rows)
+
+    // Now let the callback function know we're done
+    callback(null, result.rows);
+  }) // end of query
+} // end of function
+
+// Query to get client training session details
+function getAllTrainingSessionsFromDB(callback) {
+  console.log("Now running query to get all training session");
+
+  // Use a placeholder for the id
+  const sql = "SELECT id, sessionname from trainingsessions";
+
+  // Run the query with parameters
+  pool.query(sql, function(err, result) {
     // check for error
     if(err) {
       console.log("an error occurred")
