@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Clients</title>
+    <title id='browserTabName'>Clients</title>
     <% include ../partials/header.ejs %>
 
 </head>
@@ -11,18 +11,19 @@
 
     <div class="container">
         <div id='topHeader' class='text-center bottom-border'>
-            <h1>Clients</h1>
+            <h1 id="pageTitle">Clients</h1>
         </div>
         <div>
-            <button class="btn btn-primary" onclick=getAllClients()>View All</button>
+            <button class="btn btn-primary" onclick=getAllClients() id='viewAllClientButton'>View All</button>
         </div>
         <div id='content'>
             <div class="row">    
-                <div class='col-sm-6'>
+                <div class='col-med-6'>
                     <!-- Contains the ajax responses -->
-                    <div id="response">
+                    <div id="response" class="responses">
                         <p>Click the "View All" button to get started</p>
                     </div><!-- End of response -->
+
                 </div>
             </div>
         </div>

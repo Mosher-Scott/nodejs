@@ -1,3 +1,4 @@
+
 function getInfo() {
 
     var numberOne = document.getElementById("numOneInput").value;
@@ -96,6 +97,40 @@ function getTrainingSessions(id) {
     }
 }
 
+// Request to get all training sessions assigned to a specific client
+function getTrainingSessionExercises(id) {
+    console.log(id);
+    var request = new XMLHttpRequest();
+
+    var url = '/trainingSessionExercises?sessionId=' + id;
+
+    console.log(url);
+    
+    request.open('GET', url ,true);
+    request.responseType = 'json';
+
+    request.send();
+    console.log(request.status);
+
+    request.onload = function() {
+        var data = request.response;
+
+        console.log(data);
+
+        //TODO: Now do something with the data
+        // createExercisesSection(data);
+        createExercisesTable(data);
+    }
+}
+
+// Change the text of the "All Clients" button
+function changeViewAllClientButton(text)
+ {
+    var button = document.getElementById('viewAllClientButton');
+    button.textContent = text;
+ }
+
+// Removes all child elements from the response div
 function removeDataFromClients() {
      // The div that contains all the responses
      var baseDiv = document.querySelector('#response');
@@ -104,11 +139,22 @@ function removeDataFromClients() {
 
 // Creates a table with client details
 function showClientDetails(data){
+    
+    // Get the H1 tag and change the text
+    var title = document.getElementById('pageTitle');
+    title.textContent = 'Client Info For ' + data.first_name + " " + data.last_name;
+
+    // Change the browser tab text
+    var pageTitle = document.getElementById('browserTabName')
+    pageTitle.textContent = 'Client Info';
+
+    // Change the "View All" button text
+    changeViewAllClientButton('Back');
 
     // Remove the content already there
     removeDataFromClients();
 
-    console.log(data);
+    // console.log(data);
     var baseDiv = document.querySelector('#response');
 
     var table = document.createElement('table');
@@ -139,7 +185,8 @@ function showClientDetails(data){
     th5.textContent = "Email";``
 
     var th6 = document.createElement('th');
-    th6.classList.add("scope='col'");
+    th6.classList.add("scope='colgroup'");
+    th6.classList.add('colspan="2"');
     th6.textContent = "Options";
 
     thr.appendChild(th1);
@@ -179,6 +226,26 @@ function showClientDetails(data){
     email.textContent = data.email;
     tr.appendChild(email);
 
+    // TODO: Edit Options so they work
+    // Details Button
+    var id = data.id;
+    var details = document.createElement('td');
+    var span = document.createElement('span');
+    span.innerHTML = "<button id='button" + id + "' class='btn btn-primary btn-sm' onclick='displaySingleClientInfo(" + id + ")' ?>Edit</button>";
+    //var viewDetails = document.createElement('button');
+
+    // viewDetails.classList = "btn btn-primary btn-sm";
+    // viewDetails.textContent = "Details";
+    details.appendChild(span);
+    tr.appendChild(details);
+
+    // Delete Button
+    var deletething = document.createElement('td');
+    var deleteSpan = document.createElement('span');
+    deleteSpan.innerHTML = "<button id='button" + id + "' class='btn btn-danger btn-sm' onclick='deleteClient(" + id + ")' ?>Delete</button>";
+    deletething.appendChild(deleteSpan);
+    tr.appendChild(deletething);
+
     tbody.appendChild(tr);
 
     table.appendChild(thead);
@@ -187,9 +254,141 @@ function showClientDetails(data){
     baseDiv.appendChild(table);
 }
 
+//
+function resetClientPageTitle(text) {
+    // Get the H1 tag and change the text back
+    var title = document.getElementById('pageTitle');
+    title.textContent = text;
+
+    var pageTitle = document.getElementById('browserTabName')
+    pageTitle.textContent = text;
+}
+
+// Create div & table for displaying exercises for a training session. TESTING USING A POPUP
+function createExercisesSection(data) {
+    // Get the top level div
+    var baseDiv = document.querySelector('#response');
+
+    // Create the modal div
+    var modalTop = document.createElement("div");
+    modalTop.id = 'myModal';
+    modalTop.classList.add("modal");
+
+    var modalContent = document.createElement("div");
+    modalContent.classList.add('modal-content');
+
+    // Close button
+    var closeButtonTop = document.createElement("span");
+    closeButtonTop.classList.add("close");
+    closeButtonTop.textContent = "Close";
+
+    var text = document.createElement('p');
+    text.textContent = "Hi there, this is a popup";
+
+    modalContent.appendChild(closeButtonTop);
+
+    modalContent.appendChild(text);
+
+    modalTop.appendChild(modalContent);
+
+    baseDiv.appendChild(modalTop);
+
+}
+
+// Creates a table displaying all exercises in a training session
+function createExercisesTable(data) {
+    // The div that will contain the table
+    var baseDiv = document.querySelector('#response');
+
+    // Remove Exercise div
+   // document.getElementById('trainingSessions').innerHTML = '';
+
+    // TODO: Create a div so it can be removed when a different workout is chosen
+    
+    // Create a title for this section
+    var sectionTitle = document.createElement('h3');
+    sectionTitle.textContent = "Exercises";
+
+    baseDiv.appendChild(document.createElement('hr'));
+    baseDiv.appendChild(sectionTitle);
+
+    if (data.length == 0) {
+        var info = document.createElement("h4");
+        info.textContent = "No Workouts in Training Session";
+        baseDiv.appendChild(info);
+    } else {
+        var table = document.createElement('table');
+        table.classList=('table table-striped table-responsive')
+        table.id = "exercises";
+        var thead = document.createElement('thead');
+
+        // Now create the row & headers
+        var thr = document.createElement('tr');
+        var th1 = document.createElement('th');
+        th1.classList.add("scope='col'");
+        th1.textContent = "ID";
+
+        var th2 = document.createElement('th');
+        th2.classList.add("scope='col'");
+        th2.textContent = "Name";
+
+        var th3 = document.createElement('th');
+        th3.classList.add("scope='col'");
+        th3.textContent = "Muscle Group";
+
+        thr.appendChild(th1);
+        thr.appendChild(th2);
+        thr.appendChild(th3);
+
+        // Attach everything to the header of the table
+        thead.appendChild(thr);
+
+        var tbody = document.createElement('tbody');
+
+        for(var i = 0; i < data.length; i++) {
+            var tr = document.createElement('tr');
+
+            // ID row
+            var id = document.createElement('td');
+            id.textContent = data[i].id;
+            tr.appendChild(id);
+
+            // Name
+            var name = document.createElement('td');
+            name.textContent = data[i].name;
+            tr.appendChild(name);
+
+            // Muscle Group
+            var muscleGroup = document.createElement('td');
+            muscleGroup.textContent = data[i].musclegroup;
+            tr.appendChild(muscleGroup);
+
+            // Instructions
+            var instructions = document.createElement('td');
+            instructions.textContent = data[i].instructions;
+            tr.appendChild(instructions);
+
+            tbody.appendChild(tr);
+        }
+
+        table.appendChild(thead);
+        table.appendChild(tbody);
+
+        baseDiv.appendChild(table);
+
+    } // End of Else statement
+}
+
 // Creates a table displaying data for all clients
 function createClientTable(data) {
+        
+    // Reset the page title & browser tab
+    resetClientPageTitle('Clients');
 
+    // Change the button text for viewing all clients
+    changeViewAllClientButton('All Clients');
+
+    // Remove all values in the responses div
     removeDataFromClients();
 
     // The div that will contain the table
@@ -264,22 +463,18 @@ function createClientTable(data) {
         email.textContent = data[i].email;
         tr.appendChild(email);
 
-        // Details Button
+        // Edit Button
         var id = data[i].id;
         var details = document.createElement('td');
         var span = document.createElement('span');
-        span.innerHTML = "<button id='button" + id + "' class='btn btn-primary btn-sm' onclick='displayTrainingSessions(" + id + ")' ?>Details</button>";
-        //var viewDetails = document.createElement('button');
-
-        // viewDetails.classList = "btn btn-primary btn-sm";
-        // viewDetails.textContent = "Details";
+        span.innerHTML = "<button id='button" + id + "' class='btn btn-primary btn-sm' onclick='displaySingleClientInfo(" + id + ")' ?>Details</button>";
         details.appendChild(span);
         tr.appendChild(details);
 
         // Delete Button
         var deletething = document.createElement('td');
         var deleteSpan = document.createElement('span');
-        deleteSpan.innerHTML = "<button id='button" + id + "' class='btn btn-primary btn-sm' onclick='deleteClient(" + id + ")' ?>Delete</button>";
+        deleteSpan.innerHTML = "<button id='button" + id + "' class='btn btn-danger btn-sm' onclick='deleteClient(" + id + ")' ?>Delete</button>";
         deletething.appendChild(deleteSpan);
         tr.appendChild(deletething);
 
@@ -293,9 +488,12 @@ function createClientTable(data) {
 
 }
 
-function displayTrainingSessions(id) {
+function displaySingleClientInfo(id) {
     
+    // Get the details of the client
     getClientDetails(id);
+
+    // Now attach the training sessions assigned to that client
     getTrainingSessions(id);
 }
 
@@ -305,81 +503,117 @@ function createTrainingSessionTable(data){
     // The div that will contain the table
     var baseDiv = document.querySelector('#response');
 
-    var table = document.createElement('table');
-    table.classList=('table table-striped')
-    table.id = "clientList";
-    var thead = document.createElement('thead');
+    var sessionDiv = document.createElement('div');
+    sessionDiv.id = "trainingSessions";
 
-    // Now create the row & headers
-    var thr = document.createElement('tr');
-    var th1 = document.createElement('th');
-    th1.classList.add("scope='col'");
-    th1.textContent = "ID";
+    // Create a title for this section
+    var sectionTitle = document.createElement('h3');
+    sectionTitle.textContent = "Workout Plans";
 
-    var th2 = document.createElement('th');
-    th2.classList.add("scope='col'");
-    th2.textContent = "Name";
+    sessionDiv.appendChild(document.createElement('hr'));
+    sessionDiv.appendChild(sectionTitle);
 
-    var th3 = document.createElement('th');
-    th3.classList.add("scope='col'");
-    th3.textContent = "Reps per Set";
+    if (data.length == 0) {
+        var info = document.createElement("h4");
+        info.textContent = "User has no training sessions assigned to them";
+        baseDiv.appendChild(info);
+    } else {
+        var table = document.createElement('table');
+        table.classList=('table table-striped')
+        table.id = "clientList";
+        var thead = document.createElement('thead');
 
-    var th4 = document.createElement('th');
-    th4.classList.add("scope='col'");
-    th4.textContent = "Description";
+        // Now create the row & headers
+        var thr = document.createElement('tr');
+        var th1 = document.createElement('th');
+        th1.classList.add("scope='col'");
+        th1.textContent = "ID";
 
-    var th5 = document.createElement('th');
-    th5.classList.add("scope='col'");
-    th5.textContent = "Options";
+        var th2 = document.createElement('th');
+        th2.classList.add("scope='col'");
+        th2.textContent = "Name";
 
-    thr.appendChild(th1);
-    thr.appendChild(th2);
-    thr.appendChild(th3);
-    thr.appendChild(th4);
-    thr.appendChild(th5);
+        var th3 = document.createElement('th');
+        th3.classList.add("scope='col'");
+        th3.textContent = "Reps per Set";
 
-    // Attach everything to the header of the table
-    thead.appendChild(thr);
+        var th4 = document.createElement('th');
+        th4.classList.add("scope='col'");
+        th4.textContent = "Description";
 
-    var tbody = document.createElement('tbody');
+        var th5 = document.createElement('th');
+        th5.classList.add("id=options");
+        th5.classList.add("scope='colgroup'");
+        th5.classList.add('colspan="2"');
+        th5.textContent = "Options";
 
-    for(var i = 0; i < data.length; i++) {
-        var tr = document.createElement('tr');
+        thr.appendChild(th1);
+        thr.appendChild(th2);
+        thr.appendChild(th3);
+        thr.appendChild(th4);
+        thr.appendChild(th5);
 
-        // ID row
-        var id = document.createElement('td');
-        id.textContent = data[i].id;
-        tr.appendChild(id);
+        // Attach everything to the header of the table
+        thead.appendChild(thr);
 
-        // Name
-        var name = document.createElement('td');
-        name.textContent = data[i].sessionName;
-        tr.appendChild(name);
+        var tbody = document.createElement('tbody');
 
-        // Reps per set
-        var repsPerSet = document.createElement('td');
-        repsPerSet.textContent = data[i].setReps;
-        tr.appendChild(repsPerSet);
+        for(var i = 0; i < data.length; i++) {
+            var tr = document.createElement('tr');
 
-        // Description
-        var description = document.createElement('td');
-        description.textContent = data[i].sessionDescription;
-        tr.appendChild(description);
+            // ID row
+            var id = document.createElement('td');
+            id.textContent = data[i].id;
+            tr.appendChild(id);
 
-        // Description
-        var options = document.createElement('td');
-        options.textContent = data[i].sessionDescription;
-        tr.appendChild(options);
+            // Name
+            var name = document.createElement('td');
+            name.textContent = data[i].sessionname;
+            tr.appendChild(name);
 
-        tbody.appendChild(tr);
-    }
+            // Reps per set
+            var repsPerSet = document.createElement('td');
+            repsPerSet.textContent = data[i].setreps;
+            tr.appendChild(repsPerSet);
 
-    table.appendChild(thead);
-    table.appendChild(tbody);
+            // Description
+            var description = document.createElement('td');
+            description.textContent = data[i].sessiondescription;
+            tr.appendChild(description);
 
-    baseDiv.appendChild(table);
+            // Exercises Button
+            var id = data[i].id;
+            var details = document.createElement('td');
+            var span = document.createElement('span');
+            //span.innerHTML = "<button id='button" + id + "' class='btn btn-primary btn-sm' onclick='getTrainingSessionExercises(" + id + ")' ?>Exercises</button>"; // TODO: Make this work
+            span.innerHTML = '<button type="button" class="btn btn-info btn-lg" id="myBtn" data-toggle="modal" data-target="#myModal" onclick="getTrainingSessionExercises(' + id + ')">Open Modal</button>';
+            details.appendChild(span);
+            tr.appendChild(details);
+
+            // Delete Button
+            var deletething = document.createElement('td');
+            var deleteSpan = document.createElement('span');
+            deleteSpan.innerHTML = "<button id='button" + id + "' class='btn btn-danger btn-sm' onclick='deleteClient(" + id + ")' ?>Remove</button>"; // TODO: Make this work
+            deletething.appendChild(deleteSpan);
+            tr.appendChild(deletething);
+
+            tbody.appendChild(tr);
+        }
+
+        table.appendChild(thead);
+        table.appendChild(tbody);
+
+        sessionDiv.appendChild(table);
+
+        baseDiv.appendChild(sessionDiv);
+
+    } // End of Else statement
 }
 
+// Function for editing a client
+
+
+// TODO: Need to complete this
 function deleteClient(id) {
     alert("Delete: " + id);
 }

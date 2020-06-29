@@ -56,6 +56,10 @@ express()
   // Returns a list of training sessions assigned to a client
   .get('/clientTrainingSessions', getClientTrainingSessionsJSON)
 
+  // Returns a list of training sessions assigned to a client
+  .get('/trainingSessionExercises', getTrainingSessionExercisesJSON)
+ 
+
   // Testing
   //.get('/singleclient2', (req, res) => res.render('pages/getClientDetails'))
 
@@ -190,6 +194,36 @@ function getClientTrainingSessionsJSON(request, response) {
   }); // End of helper function
 }
 
+// Gets all exercises attached to a training session
+function getTrainingSessionExercisesJSON(request, response) {
+
+  const sessionId = request.query.sessionId;
+
+  // Helper function
+  getTrainingSessionExercisesFromDB(sessionId, function(error, result) {
+    if (error || result == "undefined") {
+      
+      response.status(404).json({success:false, data:error});
+      response.json("");
+    } else {
+      const sessions = result;
+
+      // If person is null, there are no results.  Need to handle it
+      if(sessions == null) {
+        console.log("No Exercises found for training session with ID: " + sessionId)
+        response.status(404);
+        response.end();
+        
+      } else {
+        // Set the header for the response
+        response.status(200);
+        response.setHeader('Content-Type', 'application/json');
+        response.json(sessions);
+      }
+    }
+  }); // End of helper function
+}
+
 // Processes POST data
 function getClientDetails(request, response) {
 
@@ -285,9 +319,37 @@ function getSingleClientFromDb(id, callback) {
   }) // end of query
 } // end of function
 
-// This actually connects to the database and runs the query
+// Gets all exercises assigned to a specific training session
+function getTrainingSessionExercisesFromDB(id, callback) {
+  console.log("Now querying database to find all exercises assigned to training session " + id);
+
+  // Use a placeholder for the id
+  const sql = 'SELECT e.id, e.name, e.instructions, mg.name AS "musclegroup" FROM exercises AS e JOIN sessionexercises as se ON se.exerciseid = e.id JOIN trainingsessions AS ts ON ts.id = se.sessionid JOIN musclegroups as mg ON mg.id = e.musclegroup WHERE ts.id = $1::int';
+
+  // Create an array to hold all parameters
+  const params = [id];
+
+  // Run the query with parameters
+  pool.query(sql, params, function(err, result) {
+    // check for error
+    if(err) {
+      console.log("an error occurred")
+      console.log(err)
+      callback(err, null);
+    }
+
+    // Checking for debug
+    //console.log(JSON.stringify(result.rows))
+
+    // Now let the callback function know we're done
+    callback(null, result.rows);
+
+  }) // end of query
+} // end of function
+
+// Query the database to get everything from the client table
 function getAllClientsFromDb(callback) {
-  console.log("Now running query to get all clients");
+  console.log("Now getting all clients from the DB");
 
   // Use a placeholder for the id
   const sql = "SELECT * FROM client";
@@ -309,7 +371,7 @@ function getAllClientsFromDb(callback) {
   }) // end of query
 } // end of function
 
-// This actually connects to the database and runs the query
+// Query to get client training session details
 function getTrainingSessionDetailsFromDB(id, callback) {
   console.log("Now running query to get client training session details");
 
