@@ -21,6 +21,7 @@ function addClientForm(sessions){
     // Now create the form
     var form = document.createElement('form');
     form.method = "POST";
+    form.action = "\\clientDetails";
 
     // First Name Section
     var firstNameDiv = document.createElement("div");

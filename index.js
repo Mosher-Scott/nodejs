@@ -64,7 +64,7 @@ express()
   }))
 
   // Post data for adding a new client
-  .post('/clients', addNewClient)
+  .post('/clientDetails', addNewClient)
 
   .get('/allClients', getAllClientsJSON)
  
@@ -165,7 +165,7 @@ function addNewClient(request, response) {
       response.setHeader('Content-Type', 'text/html');
 
       console.log(result);
-      response.render('pages/clients.ejs', {clientInfo: result});
+      response.redirect('/clients');
     } // End of first else section
   }); // end of helper function
 }
