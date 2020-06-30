@@ -507,3 +507,11 @@ function insertTrainingSessionsIntoDbForClient(clientId, sessionId, callback) {
   }) // end of query
 }
 
+
+/* // Query for getting information for client
+SELECT c.id, c.first_name, c.last_name, c.phone, c.email, ts.sessionName
+FROM client AS c 
+JOIN clienttrainingsessions AS cts ON cts.clientid = c.id
+JOIN trainingsessions AS ts ON ts.id = cts.sessionid
+WHERE c.id = 2
+*/

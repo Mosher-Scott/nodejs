@@ -16,6 +16,7 @@ body > *{
 table {
   overflow: scroll;
   display: block;
+  max-height: 500px;
 }
 
 body > nav + .container {

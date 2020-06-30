@@ -102,9 +102,5 @@ function addNewClientNeededData() {
         data = request.response;
 
         addClientForm(data);
-
-        //TODO: Now do something with the data
-        // createExercisesSection(data);
-        //return data;
     }
 }

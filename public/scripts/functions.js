@@ -553,7 +553,7 @@ function createTrainingSessionTable(data){
             var details = document.createElement('td');
             var span = document.createElement('span');
             //span.innerHTML = "<button id='button" + id + "' class='btn btn-primary btn-sm' onclick='getTrainingSessionExercises(" + id + ")' ?>Exercises</button>"; // TODO: Make this work
-            span.innerHTML = '<button type="button" class="btn btn-info btn-lg" id="myBtn" onclick="getTrainingSessionExercises(' + id + ')">View Exercises</button>';
+            span.innerHTML = '<button type="button" class="btn btn-info btn-sm" id="myBtn" onclick="getTrainingSessionExercises(' + id + ')">View Exercises</button>';
             details.appendChild(span);
             tr.appendChild(details);
 
