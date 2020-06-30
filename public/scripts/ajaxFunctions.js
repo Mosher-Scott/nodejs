@@ -52,9 +52,8 @@ function getTrainingSessions(id) {
     request.onload = function() {
         var data = request.response;
 
-        console.log(data);
+        //console.log(data);
 
-        //TODO: Now do something with the data
         createTrainingSessionTable(data);
     }
 }

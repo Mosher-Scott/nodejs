@@ -135,12 +135,13 @@ function getAllClientsJSON(request, response) {
 
 // Will process new client data & add it to the database
 function addNewClient(request, response) {
- // console.log(request);
+  console.log(request.body);
 
   const firstName = request.body.firstNameInput;
   const lastName = request.body.lastNameInput;
   const phone = request.body.phoneInput;
   const email = request.body.emailInput;
+  const sessions = request.body.sessionExercises;
 
   //console.log(firstName, lastName, phone, email);
 
@@ -148,16 +149,28 @@ function addNewClient(request, response) {
   insertNewClientIntoDB(firstName, lastName, phone, email, function(error, result) {
     if (error || result == null) {
       response.status(500).json({success:false, data:error});
-  } else {
+  } else { // If you successfully inserted the client into the database, now add in the training sessions
+    console.log(result.id);
+    // Now use another helper function to insert the training sessions into the table
+    sessions.forEach(workout => {
+      insertTrainingSessionsIntoDbForClient(result.id, workout, function(error, result) {
+        if (error || result == null) {
+          response.status(500).json({success:false, data:error});
+      } else { }
+      })
+    }); // end of foreach loop
+
     // Set the header for the response
       response.status(200);
       response.setHeader('Content-Type', 'text/html');
 
       console.log(result);
       response.render('pages/clients.ejs', {clientInfo: result});
-    }
-  }) // end of helper function
+    } // End of first else section
+  }); // end of helper function
 }
+
+// Adds exercises to the clientTrainingSessions table
 
 // Called to get a single client out of the database
 // Processes GET data
@@ -251,7 +264,6 @@ function getAllTrainingSessionsJSON(request, response) {
     }
   }); // End of helper function
 }
-
 
 // Gets all exercises attached to a training session
 function getTrainingSessionExercisesJSON(request, response) {
@@ -394,35 +406,6 @@ function getAllClientsFromDb(callback) {
   }) // end of query
 } // end of function
 
-// Query for inserting a new user into the database
-function insertNewClientIntoDB(firstName, lastName, phone, email, callback) {
-  console.log("Now running query to insert a new client");
-  
-  // Create an array to hold all parameters
-  const params = [firstName, lastName, phone, email];
-
-  // Use a placeholder for the id
-  const sql = "INSERT INTO client (first_name, last_name, phone, email) VALUES ($1, $2, $3, $4) RETURNING *";
-
-  // Run the query with parameters
-  pool.query(sql, params, function(err, result) {
-    // check for error
-    if(err) {
-      console.log("an error occurred")
-      console.log(err)
-      callback(err, null);
-    }
-    
-    // Checking for debug
-    // console.log("Result: ", result.rows)
-
-    // Now let the callback function know we're done
-    callback(null, result.rows[0]);
-
-  }) // end of query
-}
-
-
 // Query to get client training session details
 function getTrainingSessionDetailsFromDB(id, callback) {
   console.log("Now running query to get client training session details");
@@ -473,3 +456,54 @@ function getAllTrainingSessionsFromDB(callback) {
     callback(null, result.rows);
   }) // end of query
 } // end of function
+
+// Query for inserting a new user into the database
+function insertNewClientIntoDB(firstName, lastName, phone, email, callback) {
+  console.log("Now running query to insert a new client");
+  
+  // Create an array to hold all parameters
+  const params = [firstName, lastName, phone, email];
+
+  // Use a placeholder for the id
+  const sql = "INSERT INTO client (first_name, last_name, phone, email) VALUES ($1, $2, $3, $4) RETURNING *";
+
+  // Run the query with parameters
+  pool.query(sql, params, function(err, result) {
+    // check for error
+    if(err) {
+      console.log("an error occurred")
+      console.log(err)
+      callback(err, null);
+    }
+
+    // Now let the callback function know we're done
+    callback(null, result.rows[0]);
+
+  }) // end of query
+}
+
+// Query for inserting a new user into the database
+function insertTrainingSessionsIntoDbForClient(clientId, sessionId, callback) {
+  console.log("Now inserting training session info");
+  
+  // Create an array to hold all parameters
+  const params = [clientId, sessionId];
+
+  // Use a placeholder for the id
+  const sql = "INSERT INTO clienttrainingsessions (clientid, sessionid) VALUES ($1, $2) RETURNING *";
+
+  // Run the query with parameters
+  pool.query(sql, params, function(err, result) {
+    // check for error
+    if(err) {
+      console.log("an error occurred")
+      console.log(err)
+      callback(err, null);
+    }
+
+    // Now let the callback function know we're done
+    callback(null, result.rows[0]);
+
+  }) // end of query
+}
+

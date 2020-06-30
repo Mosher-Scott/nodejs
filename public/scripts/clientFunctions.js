@@ -108,7 +108,7 @@ function addClientForm(sessions){
         checkbox.type = "checkbox";
         checkbox.value = sessions[i].id;
         checkbox.id = "session" + i;
-        checkbox.name = "session" + i;
+        checkbox.name = "sessionExercises";
 
         var checkboxLabel = document.createElement("label");
         checkboxLabel.classList.add("form-check-label");

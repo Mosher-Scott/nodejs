@@ -271,7 +271,7 @@ function createExercisesTable(data) {
    // document.getElementById('trainingSessions').innerHTML = '';
 
     // TODO: Create a div so it can be removed when a different workout is chosen
-    
+
     // Create a title for this section
     var sectionTitle = document.createElement('h3');
     sectionTitle.textContent = "Exercises";
@@ -466,7 +466,7 @@ function displaySingleClientInfo(id) {
 
 // Creates a table containing all the training sessions assigned to a client
 function createTrainingSessionTable(data){
-   
+
     // The div that will contain the table
     var baseDiv = document.querySelector('#response');
 
@@ -553,7 +553,7 @@ function createTrainingSessionTable(data){
             var details = document.createElement('td');
             var span = document.createElement('span');
             //span.innerHTML = "<button id='button" + id + "' class='btn btn-primary btn-sm' onclick='getTrainingSessionExercises(" + id + ")' ?>Exercises</button>"; // TODO: Make this work
-            span.innerHTML = '<button type="button" class="btn btn-info btn-lg" id="myBtn" data-toggle="modal" data-target="#myModal" onclick="getTrainingSessionExercises(' + id + ')">Open Modal</button>';
+            span.innerHTML = '<button type="button" class="btn btn-info btn-lg" id="myBtn" onclick="getTrainingSessionExercises(' + id + ')">View Exercises</button>';
             details.appendChild(span);
             tr.appendChild(details);
 
