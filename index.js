@@ -66,6 +66,9 @@ express()
   // Post data for adding a new client
   .post('/clientDetails', addNewClient)
 
+  // Put request for updating a client
+  .put('/clientDetails', updateClient)
+
   .get('/allClients', getAllClientsJSON)
  
 
@@ -168,6 +171,11 @@ function addNewClient(request, response) {
       response.redirect('/clients');
     } // End of first else section
   }); // end of helper function
+}
+
+// Function for updating a client using a PUT request
+function updateClient(request, response) {
+  console.log(request.body);
 }
 
 // Adds exercises to the clientTrainingSessions table
@@ -506,12 +514,3 @@ function insertTrainingSessionsIntoDbForClient(clientId, sessionId, callback) {
 
   }) // end of query
 }
-
-
-/* // Query for getting information for client
-SELECT c.id, c.first_name, c.last_name, c.phone, c.email, ts.sessionName
-FROM client AS c 
-JOIN clienttrainingsessions AS cts ON cts.clientid = c.id
-JOIN trainingsessions AS ts ON ts.id = cts.sessionid
-WHERE c.id = 2
-*/

@@ -146,7 +146,7 @@ function showClientDetails(data){
     var id = data.id;
     var details = document.createElement('td');
     var span = document.createElement('span');
-    span.innerHTML = "<button id='button" + id + "' class='btn btn-primary btn-sm' onclick='displaySingleClientInfo(" + id + ")' ?>Edit</button>";
+    span.innerHTML = "<button id='button" + id + "' class='btn btn-primary btn-sm' onclick='editClient(" + id + ")' ?>Edit</button>";
     //var viewDetails = document.createElement('button');
 
     // viewDetails.classList = "btn btn-primary btn-sm";
@@ -167,58 +167,6 @@ function showClientDetails(data){
     table.appendChild(tbody);
 
     baseDiv.appendChild(table);
-}
-
-// Creates a form with client details
-// data = information retrieved from the database
-function addClientForm(){
-    
-    // Get the H1 tag and change the text
-    var title = document.getElementById('pageTitle');
-    title.textContent = 'Add New Client';
-
-    // Change the browser tab text
-    var pageTitle = document.getElementById('browserTabName')
-    pageTitle.textContent = 'Add New Client';
-
-    // Change the "View All" button text
-    changeViewAllClientButton('Back');
-
-    // Remove the content already there
-    removeDataFromClients();
-
-    // console.log(data);
-    var baseDiv = document.querySelector('#response');
-
-    // Now create the form
-    var form = document.createElement('form');
-    form.method = "POST";
-
-    var firstNameDiv = document.createElement("div");
-    firstNameDiv.classList.add("form-group");
-
-    var firstNameLabel = document.createElement("label");
-    firstNameLabel.setAttribute("for", "firstName");
-    firstNameLabel.textContent = "First Name";
-
-    var firstNameInput = document.createElement("input");
-    firstNameInput.type = "text";
-    firstNameInput.classList.add("form-control");
-    firstNameInput.name = "firstNameInput";
-
-    firstNameDiv.appendChild(firstNameLabel);
-    firstNameDiv.appendChild(firstNameInput);
-    form.appendChild(firstNameDiv);
-
-
-    // Submit button
-    var submitButton = document.createElement('button');
-    submitButton.value = "submit";
-    submitButton.classList.add("btn");
-    submitButton.classList.add("btn-primary");
-    submitButton.textContent = "Submit";
-    form.appendChild(submitButton);
-    baseDiv.appendChild(form);
 }
 
 //
@@ -462,6 +410,13 @@ function displaySingleClientInfo(id) {
 
     // Now attach the training sessions assigned to that client
     getTrainingSessions(id);
+}
+
+// Gets the information to be processed for the Edit Client form
+function editClient(id) {
+
+    // Run the ajax query
+    editClientData(id);
 }
 
 // Creates a table containing all the training sessions assigned to a client

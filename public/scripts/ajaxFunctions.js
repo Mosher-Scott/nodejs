@@ -10,7 +10,7 @@ function getAllClients() {
     request.onload = function() {
         var data = request.response;
 
-        console.log(data);
+        // console.log(data);
 
         createClientTable(data);
     }
@@ -31,7 +31,6 @@ function getClientDetails(id) {
         var data = request.response;
         showClientDetails(data);
     }
-
 }
 
 // Request to get all training sessions assigned to a specific client
@@ -41,7 +40,7 @@ function getTrainingSessions(id) {
 
     var url = '/clientTrainingSessions?clientId=' + id;
 
-    console.log(url);
+    //console.log(url);
     
     request.open('GET', url ,true);
     request.responseType = 'json';
@@ -95,12 +94,59 @@ function addNewClientNeededData() {
     request.responseType = 'json';
 
     request.send();
-    console.log(request.status);
+    // console.log(request.status);
 
     var data;
     request.onload = function() {
         data = request.response;
 
         addClientForm(data);
+    }
+}
+
+// Edit Client Stuff
+function editClientData(id){
+   // console.log("editclientdata");
+    // Get the client data
+    var clientDataRequest = new XMLHttpRequest();
+
+    var clientDataUrl = '/clientDetails?id=' + id;
+
+    clientDataRequest.open('GET', clientDataUrl ,true);
+    clientDataRequest.responseType = 'json';
+
+    clientDataRequest.send();
+
+    var data;
+    clientDataRequest.onload = function() {
+        //console.log("request");
+        data = clientDataRequest.response;
+
+        editClientForm(data);
+    }
+}
+
+
+// Request to get all training sessions for the Edit Client form
+function EditClientTrainingSessions(id) {
+
+    var request = new XMLHttpRequest();
+
+    var url = '/clientTrainingSessions?clientId=' + id;
+
+    //console.log(url);
+    
+    request.open('GET', url ,true);
+    request.responseType = 'json';
+
+    request.send();
+    // console.log(request.status);
+
+    request.onload = function() {
+        var data = request.response;
+
+        //console.log(data);
+
+        createTrainingSessionTable(data);
     }
 }

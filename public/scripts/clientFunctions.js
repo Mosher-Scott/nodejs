@@ -131,18 +131,19 @@ function addClientForm(sessions){
     submitButton.textContent = "Submit";
     form.appendChild(submitButton);
     baseDiv.appendChild(form);
+
 }
 
 // Creates a form with client details
-function editClientForm(clientData, sessions){
-    
+function editClientForm(data){
+
     // Get the H1 tag and change the text
     var title = document.getElementById('pageTitle');
-    title.textContent = 'Add New Client';
+    title.textContent = 'Edit Client';
 
     // Change the browser tab text
     var pageTitle = document.getElementById('browserTabName')
-    pageTitle.textContent = 'Add New Client';
+    pageTitle.textContent = 'Edit Client';
 
     // Change the "View All" button text
     changeViewAllClientButton('Back');
@@ -153,9 +154,9 @@ function editClientForm(clientData, sessions){
     // console.log(data);
     var baseDiv = document.querySelector('#response');
 
-    // Now create the form
+    // Now create the form.  Send it as a PUT request
     var form = document.createElement('form');
-    form.method = "POST";
+    form.method = "PUT";
     form.action = "\\clientDetails";
 
     // First Name Section
@@ -171,6 +172,7 @@ function editClientForm(clientData, sessions){
     firstNameInput.classList.add("form-control");
     firstNameInput.name = "firstNameInput";
     firstNameInput.required = "required";
+    firstNameInput.value = data.first_name;
 
     firstNameDiv.appendChild(firstNameLabel);
     firstNameDiv.appendChild(firstNameInput);
@@ -189,6 +191,7 @@ function editClientForm(clientData, sessions){
     lastNameInput.classList.add("form-control");
     lastNameInput.name = "lastNameInput";
     lastNameInput.required = "required";
+    lastNameInput.value = data.last_name;
 
     lastNameDiv.appendChild(lastNameLabel);
     lastNameDiv.appendChild(lastNameInput);
@@ -207,6 +210,7 @@ function editClientForm(clientData, sessions){
     phoneInput.classList.add("form-control");
     phoneInput.name = "phoneInput";
     phoneInput.required = "required";
+    phoneInput.value = data.phone;
 
     phoneDiv.appendChild(phoneLabel);
     phoneDiv.appendChild(phoneInput);
@@ -223,47 +227,109 @@ function editClientForm(clientData, sessions){
     emailInput.type = "email";
     emailInput.classList.add("form-control");
     emailInput.name = "emailInput";
+    emailInput.value = data.email;
 
     emailDiv.appendChild(emailLabel);
     emailDiv.appendChild(emailInput);
     form.appendChild(emailDiv);
 
+    baseDiv.appendChild(form);
+
+    // Create the checkboxes
+    createEditFormSessionCheckboxes(form, data.id, baseDiv);
+}
+
+// Created the checkboxes for the 
+function createEditFormSessionCheckboxes(form, id, baseDiv) {
     // Create the checkboxes for the training sessions
-    console.log(sessions);
     var trainingSessionBoxes = document.createElement('div');
     trainingSessionBoxes.classList.add("form-group");
+
+    // Holds training session data for the client
+    var sessions = [];
+
+    // Now get the session data
+    var sessionRequest = new XMLHttpRequest();
+
+    var url = '/alltrainingsessions';
     
-    for(var i = 0; i < sessions.length; i++) {
+    //console.log(url);
+    sessionRequest.open('GET', url ,true);
+    sessionRequest.responseType = 'json';
 
-        console.log(sessions[i].id);
-        var trainingSessionCheckBoxes = document.createElement('div');
-        trainingSessionCheckBoxes.classList.add("form-check");
+    sessionRequest.send();
+    // console.log(request.status);
 
-        var checkbox = document.createElement("input");
-        checkbox.classList.add("form-check-input");
-        checkbox.type = "checkbox";
-        checkbox.value = sessions[i].id;
-        checkbox.id = "session" + i;
-        checkbox.name = "sessionExercises";
+    sessionRequest.onload = function() {
+        sessions = sessionRequest.response;
 
-        var checkboxLabel = document.createElement("label");
-        checkboxLabel.classList.add("form-check-label");
-        checkboxLabel.textContent = sessions[i].sessionname;
+        for(var i = 0; i < sessions.length; i++) {
 
-        trainingSessionCheckBoxes.appendChild(checkbox);
-        trainingSessionCheckBoxes.appendChild(checkboxLabel);
+            var trainingSessionCheckBoxes = document.createElement('div');
+            trainingSessionCheckBoxes.classList.add("form-check");
+    
+            var checkbox = document.createElement("input");
+            checkbox.classList.add("form-check-input");
+            checkbox.type = "checkbox";
+            checkbox.value = sessions[i].id;
+            checkbox.id = "session" + i;
+            checkbox.name = "sessionExercises";
+    
+            var checkboxLabel = document.createElement("label");
+            checkboxLabel.classList.add("form-check-label");
+            checkboxLabel.textContent = sessions[i].sessionname;
+    
+            trainingSessionCheckBoxes.appendChild(checkbox);
+            trainingSessionCheckBoxes.appendChild(checkboxLabel);
+    
+            trainingSessionBoxes.appendChild(trainingSessionCheckBoxes);
+        }; // End of for loop 
+    
+        form.appendChild(trainingSessionBoxes);
 
-        trainingSessionBoxes.appendChild(trainingSessionCheckBoxes);
-    };
+        // Now check the boxes for sessions assigned to the client
+        checkEditFormTrainingSessionBoxes(id, form, baseDiv);
+      
+    }// End of onload function
+}
 
-    form.appendChild(trainingSessionBoxes);
+function checkEditFormTrainingSessionBoxes(id, form, baseDiv) {
 
-    // Submit button
-    var submitButton = document.createElement('button');
-    submitButton.value = "submit";
-    submitButton.classList.add("btn");
-    submitButton.classList.add("btn-primary");
-    submitButton.textContent = "Submit";
-    form.appendChild(submitButton);
-    baseDiv.appendChild(form);
+    var request = new XMLHttpRequest();
+
+    var url = '/clientTrainingSessions?clientId=' + id;
+
+    //console.log(url);
+    
+    request.open('GET', url ,true);
+    request.responseType = 'json';
+
+    request.send();
+    // console.log(request.status);
+
+    request.onload = function() {
+        var data = request.response;
+
+        console.log(data);
+        
+        // If the user has sessions assigned to them, check the boxes
+        if (data != '') {
+           // Loop through all the checkboxes and see if the value is in the data array
+            for(var i = 0; i <= data.length; i++) {
+                document.getElementById('session' + i).checked = true;
+            }
+        }
+        createEditClientSubmitButton(form, baseDiv)
+    }
+}
+
+function createEditClientSubmitButton(form, baseDiv) {
+        // Submit button
+        var submitButton = document.createElement('button');
+        submitButton.value = "submit";
+        submitButton.classList.add("btn");
+        submitButton.classList.add("btn-primary");
+        submitButton.textContent = "Submit";
+        form.appendChild(submitButton);
+        baseDiv.appendChild(form);
 }
