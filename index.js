@@ -66,6 +66,9 @@ express()
   // Post data for adding a new client
   .post('/clientDetails', addNewClient)
 
+  // Post data for adding a new client
+  .post('/editClientDetails', editClient)
+
   // Put request for updating a client
   .put('/clientDetails', updateClient)
 
@@ -346,6 +349,7 @@ function getSingleClientFromDb(id, callback) {
 
   // Run the query with parameters
   pool.query(sql, params, function(err, result) {
+  
     // check for error
     if(err) {
       console.log("an error occurred")
@@ -360,6 +364,9 @@ function getSingleClientFromDb(id, callback) {
     callback(null, result.rows);
 
   }) // end of query
+
+  
+
 } // end of function
 
 // Gets all exercises assigned to a specific training session
