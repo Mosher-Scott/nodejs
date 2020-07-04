@@ -67,10 +67,7 @@ express()
   .post('/clientDetails', addNewClient)
 
   // Post data for adding a new client
-  .post('/editClientDetails', editClient)
-
-  // Put request for updating a client
-  .put('/clientDetails', updateClient)
+  .post('/editClientDetails', editExistingClient)
 
   .get('/allClients', getAllClientsJSON)
  
@@ -176,9 +173,42 @@ function addNewClient(request, response) {
   }); // end of helper function
 }
 
-// Function for updating a client using a PUT request
-function updateClient(request, response) {
+// Will process new client data & add it to the database
+function editExistingClient(request, response) {
   console.log(request.body);
+
+  const id = request.body.id;
+  const firstName = request.body.firstNameInput;
+  const lastName = request.body.lastNameInput;
+  const phone = request.body.phoneInput;
+  const email = request.body.emailInput;
+  const sessions = request.body.sessionExercises;
+
+  console.log(firstName, lastName, phone, email);
+
+  // Helper function to insert the data
+  editExisingClientInDB(firstName, lastName, phone, email, function(error, result) {
+    if (error || result == null) {
+      response.status(500).json({success:false, data:error});
+  } else { // If you successfully inserted the client into the database, now add in the training sessions
+    console.log(result.id);
+    // Now use another helper function to insert the training sessions into the table
+    sessions.forEach(workout => {
+      insertTrainingSessionsIntoDbForClient(result.id, workout, function(error, result) {
+        if (error || result == null) {
+          response.status(500).json({success:false, data:error});
+      } else { }
+      })
+    }); // end of foreach loop
+
+    // Set the header for the response
+      response.status(200);
+      response.setHeader('Content-Type', 'text/html');
+
+      console.log(result);
+      response.redirect('/clients');
+    } // End of first else section
+  }); // end of helper function
 }
 
 // Adds exercises to the clientTrainingSessions table
@@ -481,6 +511,31 @@ function insertNewClientIntoDB(firstName, lastName, phone, email, callback) {
 
   // Use a placeholder for the id
   const sql = "INSERT INTO client (first_name, last_name, phone, email) VALUES ($1, $2, $3, $4) RETURNING *";
+
+  // Run the query with parameters
+  pool.query(sql, params, function(err, result) {
+    // check for error
+    if(err) {
+      console.log("an error occurred")
+      console.log(err)
+      callback(err, null);
+    }
+
+    // Now let the callback function know we're done
+    callback(null, result.rows[0]);
+
+  }) // end of query
+}
+
+// Query for inserting a new user into the database
+function editExisingClientInDB(id, firstName, lastName, phone, email, callback) {
+  console.log("Now running query to insert a new client");
+  
+  // Create an array to hold all parameters
+  const params = [id, firstName, lastName, phone, email];
+
+  // Use a placeholder for the id
+  const sql = "UPDATE CLIENT SET first_name = $1, last_name = $2, phone = $3, email = $4 WHERE id = $5::int";
 
   // Run the query with parameters
   pool.query(sql, params, function(err, result) {

@@ -159,6 +159,12 @@ function editClientForm(data){
     form.method = "PUT";
     form.action = "\\clientDetails";
 
+    var id = document.createElement("input");
+    id.type = "hideen";
+    id.name = "id";
+    id.value = data.id;
+    form.append(id);
+
     // First Name Section
     var firstNameDiv = document.createElement("div");
     firstNameDiv.classList.add("form-group");

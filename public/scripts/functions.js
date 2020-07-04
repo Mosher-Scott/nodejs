@@ -218,8 +218,6 @@ function createExercisesTable(data) {
     // Remove Exercise div
    // document.getElementById('trainingSessions').innerHTML = '';
 
-    // TODO: Create a div so it can be removed when a different workout is chosen
-
     // Create a title for this section
     var sectionTitle = document.createElement('h3');
     sectionTitle.textContent = "Exercises";
