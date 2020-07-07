@@ -156,8 +156,8 @@ function editClientForm(data){
 
     // Now create the form.  Send it as a PUT request
     var form = document.createElement('form');
-    form.method = "PUT";
-    form.action = "\\clientDetails";
+    form.method = "POST";
+    form.action = "\\editClientDetails";
 
     var id = document.createElement("input");
     id.type = "hidden";
@@ -269,6 +269,8 @@ function createEditFormSessionCheckboxes(form, id, baseDiv) {
     sessionRequest.onload = function() {
         sessions = sessionRequest.response;
 
+        //console.log(sessions);
+
         for(var i = 0; i < sessions.length; i++) {
 
             var trainingSessionCheckBoxes = document.createElement('div');
@@ -278,7 +280,7 @@ function createEditFormSessionCheckboxes(form, id, baseDiv) {
             checkbox.classList.add("form-check-input");
             checkbox.type = "checkbox";
             checkbox.value = sessions[i].id;
-            checkbox.id = "session" + i;
+            checkbox.id = "session" + sessions[i].id;
             checkbox.name = "sessionExercises";
     
             var checkboxLabel = document.createElement("label");
@@ -315,14 +317,14 @@ function checkEditFormTrainingSessionBoxes(id, form, baseDiv) {
 
     request.onload = function() {
         var data = request.response;
-
-        console.log(data);
         
         // If the user has sessions assigned to them, check the boxes
         if (data != '') {
            // Loop through all the checkboxes and see if the value is in the data array
-            for(var i = 0; i <= data.length; i++) {
-                document.getElementById('session' + i).checked = true;
+            for(var i = 0; i < data.length; i++) {
+                //console.log("i: ", i);
+                //console.log("item: ", data[i].id);
+                document.getElementById('session' + data[i].id).checked = true;
             }
         }
         createEditClientSubmitButton(form, baseDiv)

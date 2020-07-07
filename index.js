@@ -67,8 +67,8 @@ express()
   .post('/clientDetails', addNewClient)
 
   // Post data for adding a new client
+  //.post('/editClientDetails', editExistingClient)
   .post('/editClientDetails', editExistingClient)
-
   .get('/allClients', getAllClientsJSON)
  
 
@@ -173,9 +173,29 @@ function addNewClient(request, response) {
   }); // end of helper function
 }
 
+function test(request, response) {
+  console.log("Request Body: ", request.body);
+
+  const id = request.body.id;
+
+  var trainingSessions = [];
+  // Get the sessions assigned to the client
+  getClientTrainingSessions(id, function(error, result) {
+    if (error || result == null) {
+      
+      response.status(500).json({success:false, data:error});
+    } else {
+      trainingSessions = result;
+    }
+  });
+
+    console.log(trainingSessions);
+  
+}
+
 // Will process new client data & add it to the database
 function editExistingClient(request, response) {
-  console.log(request.body);
+  //console.log("Request Body: ", request.body);
 
   const id = request.body.id;
   const firstName = request.body.firstNameInput;
@@ -184,34 +204,106 @@ function editExistingClient(request, response) {
   const email = request.body.emailInput;
   const sessions = request.body.sessionExercises;
 
-  console.log(firstName, lastName, phone, email);
-
-  // Helper function to insert the data
-  editExisingClientInDB(firstName, lastName, phone, email, function(error, result) {
+  // Helper function to update the data
+  editExisingClientInDB(firstName, lastName, phone, email, id, function(error, result) {
     if (error || result == null) {
+      console.log("Something went wrong updating the table");
+      console.log(error);
       response.status(500).json({success:false, data:error});
-  } else { // If you successfully inserted the client into the database, now add in the training sessions
-    console.log(result.id);
-    // Now use another helper function to insert the training sessions into the table
-    sessions.forEach(workout => {
-      insertTrainingSessionsIntoDbForClient(result.id, workout, function(error, result) {
-        if (error || result == null) {
-          response.status(500).json({success:false, data:error});
-      } else { }
-      })
-    }); // end of foreach loop
+  } else { // If you successfully updated the client, then now update the training sessions
+    //console.log(result.id);
+
+    // Get the sessions assigned to the client
+    getClientTrainingSessions(id, function(error, result) {
+      if (error || result == null) {
+        console.log("Something went wrong getting the training sessions");
+        response.status(500).json({success:false, data:error});
+      } else {
+        // Compare the results from the DB query with the form data
+        result.forEach(dbQueryResult => {
+          console.log("ID:", dbQueryResult.id);
+          console.log("Session ID:", dbQueryResult.sessionid);
+            // 1. If dbQueryResult is in the sessions variable, do nothing
+
+            // 2. If dbQueryResult is not in the DB is NOT in the sessions variable, run query to remove it from the database using the dbQueryResult.id value
+
+        }) // End of forEach statement for comparing db and form data
+
+        // Now use another helper function to insert the training sessions into the table
+        sessions.forEach(workout => {
+
+          // 1. If workout (aka sessionID) is in result array, skip doing anything
+
+          // 2. If the workout (aka sessionID) is not in the result array, run function to add it to the table.  Will need clientId and workout values
+
+          console.log("Form Session ID: ", workout);
+        }); // end of sessions foreach loop
+      }
+    });
 
     // Set the header for the response
       response.status(200);
       response.setHeader('Content-Type', 'text/html');
 
-      console.log(result);
+      //console.log(result);
       response.redirect('/clients');
     } // End of first else section
   }); // end of helper function
 }
 
-// Adds exercises to the clientTrainingSessions table
+// Query for updating a user in the database
+function editExisingClientInDB(firstName, lastName, phone, email, id, callback) {
+  console.log("Now running query to insert a new client");
+  
+  // Create an array to hold all parameters
+  const params = [firstName, lastName, phone, email, id];
+  // console.log(params);
+
+  // Use a placeholder for the id
+  const sql = "UPDATE CLIENT SET first_name = $1, last_name = $2, phone = $3, email = $4 WHERE id = $5::int";
+
+  // Run the query with parameters
+  pool.query(sql, params, function(err, result) {
+    // check for error
+    if(err) {
+      console.log("an error occurred")
+      console.log(err)
+      callback(err, null);
+    }
+
+    console.log("Successfully updated userID", id);
+    // Now let the callback function know we're done
+    callback(null, result.rowCount);
+
+  }) // end of query
+}
+
+// Query to get training session details for a specific client
+function getClientTrainingSessions(id, callback) {
+  console.log("Now running query to get all training sessions assigned to a client");
+
+  // Use a placeholder for the id
+  const sql = "SELECT sessionid, id FROM clienttrainingsessions WHERE clientid = $1::int";
+
+  const params = [id];
+  //console.log("getClientTrainingSessionsId = ", id);
+
+  // Run the query with parameters
+  pool.query(sql, params, function(err, result) {
+    // check for error
+    if(err) {
+      console.log("an error occurred")
+      console.log(err)
+      callback(err, null);
+    }
+
+    // Checking for debug
+    //console.log("Result: ", result.rows)
+
+    // Now let the callback function know we're done
+    callback(null, result.rows);
+  }) // end of query
+} // end of function
 
 // Called to get a single client out of the database
 // Processes GET data
@@ -432,7 +524,7 @@ function getAllClientsFromDb(callback) {
   console.log("Now getting all clients from the DB");
 
   // Use a placeholder for the id
-  const sql = "SELECT * FROM client";
+  const sql = "SELECT * FROM client ORDER BY id ASC";
 
   // Run the query with parameters
   pool.query(sql, function(err, result) {
@@ -478,7 +570,7 @@ function getTrainingSessionDetailsFromDB(id, callback) {
   }) // end of query
 } // end of function
 
-// Query to get client training session details
+// Query to get training session details
 function getAllTrainingSessionsFromDB(callback) {
   console.log("Now running query to get all training session");
 
@@ -511,31 +603,6 @@ function insertNewClientIntoDB(firstName, lastName, phone, email, callback) {
 
   // Use a placeholder for the id
   const sql = "INSERT INTO client (first_name, last_name, phone, email) VALUES ($1, $2, $3, $4) RETURNING *";
-
-  // Run the query with parameters
-  pool.query(sql, params, function(err, result) {
-    // check for error
-    if(err) {
-      console.log("an error occurred")
-      console.log(err)
-      callback(err, null);
-    }
-
-    // Now let the callback function know we're done
-    callback(null, result.rows[0]);
-
-  }) // end of query
-}
-
-// Query for inserting a new user into the database
-function editExisingClientInDB(id, firstName, lastName, phone, email, callback) {
-  console.log("Now running query to insert a new client");
-  
-  // Create an array to hold all parameters
-  const params = [id, firstName, lastName, phone, email];
-
-  // Use a placeholder for the id
-  const sql = "UPDATE CLIENT SET first_name = $1, last_name = $2, phone = $3, email = $4 WHERE id = $5::int";
 
   // Run the query with parameters
   pool.query(sql, params, function(err, result) {
