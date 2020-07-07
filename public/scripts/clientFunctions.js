@@ -160,7 +160,7 @@ function editClientForm(data){
     form.action = "\\clientDetails";
 
     var id = document.createElement("input");
-    id.type = "hideen";
+    id.type = "hidden";
     id.name = "id";
     id.value = data.id;
     form.append(id);
