@@ -197,7 +197,7 @@ function test(request, response) {
 function editExistingClient(request, response) {
   //console.log("Request Body: ", request.body);
 
-  const id = request.body.id;
+  const clientId = request.body.id;
   const firstName = request.body.firstNameInput;
   const lastName = request.body.lastNameInput;
   const phone = request.body.phoneInput;
@@ -205,7 +205,7 @@ function editExistingClient(request, response) {
   const sessions = request.body.sessionExercises;
 
   // Helper function to update the data
-  editExisingClientInDB(firstName, lastName, phone, email, id, function(error, result) {
+  editExisingClientInDB(firstName, lastName, phone, email, clientId, function(error, result) {
     if (error || result == null) {
       console.log("Something went wrong updating the table");
       console.log(error);
@@ -214,51 +214,60 @@ function editExistingClient(request, response) {
     //console.log(result.id);
 
     // Get the sessions assigned to the client
-    getClientTrainingSessions(id, function(error, result) {
+    getClientTrainingSessions(clientId, function(error, result) {
       if (error || result == null) {
         console.log("Something went wrong getting the training sessions");
         response.status(500).json({success:false, data:error});
       } else {
 
         console.log(sessions);
+        // TODO: Convert string to array if typeof(sessions == string), then process it
         console.log(result);
 
         // Compare the results from the DB query with the form data.  If an element in the dbquery results isn't in the form data array, remove it from the db
         result.forEach(dbQueryResult => {
 
           var inSessionsArray = false;
-          console.log("\nTop of for forEach");
-          console.log(`230 inSessionsArray = ${inSessionsArray}`);
+          //console.log("\nTop of for forEach");
+          //console.log(`231 inSessionsArray = ${inSessionsArray}`);
           //console.log("Query Result ID:", dbQueryResult.id);
-          console.log("Query Result Session ID:", dbQueryResult.sessionid);
+          //console.log("Query Result Session ID:", dbQueryResult.sessionid);
 
             // 1. Now loop through the sessions array and compare values
             for (var i = 0; i < sessions.length; i++) {
               
-              console.log("line 236 sessions[i] value", sessions[i] )
+              //console.log("line 238 sessions[i] value", sessions[i] )
               
               if (sessions[i] == dbQueryResult.sessionid) {
-                console.log(`Match. sessions[i] = ${sessions[i]} is in the database array`);
+                //console.log(`Match. sessions[i] = ${sessions[i]} is in the database array`);
                 inSessionsArray = true;
-                console.log(`241 inSessionsArray = ${inSessionsArray}`);
+                console.log(`243 inSessionsArray = ${inSessionsArray}`);
                 break;
               } else {
                 console.log(`dbQueryResult.sessionid  ${dbQueryResult.sessionid} != session value: ${sessions[i]}`);
               }
 
-              console.log(`247 inSessionsArray = ${inSessionsArray}`);
+              //console.log(`249 inSessionsArray = ${inSessionsArray}`);
               
             } // end of for loop to check the sessions array
 
             // At the end of checking the sessions array if inSessionsArray still is false, remove dbQueryResult.id from the clienttrainingsession table
             if (inSessionsArray == false) {
-              // TODO: Send dbQueryResult.id to function to remove it from the table
-              console.log(`Now pretend dbquery result ${dbQueryResult.sessionid} been removed from the array`)
-            }
+
+              removeTrainingSessionFromClient(dbQueryResult.id, function(error, result) {
+                if (error || result == null) {
+                  console.log("Something went wrong removing the training session from the table");
+                  console.log(error);
+                  response.status(500).json({success:false, data:error});
+                } else {
+                  console.log(`Successfully removed row ${dbQueryResult.id}`)
+                }
+              }) // end of callback function
+              
+            } // end of if statement
 
         }) // End of forEach statement for comparing db and form data
 
-        console.log("End of checking if the dbquery result is in the form data")
         // Now check if the session ID from the form is already in the database
         sessions.forEach(workout => {
           console.log(`Workout: ${workout}`);
@@ -269,7 +278,7 @@ function editExistingClient(request, response) {
             var isInDb = false;
             // If it exists, break out of the loop
             if(workout == result[j].sessionid) {
-              console.log("match");
+              // console.log("match");
               isInDb = true;
               break;
             }
@@ -277,15 +286,21 @@ function editExistingClient(request, response) {
 
           // 2. If the workout (aka sessionID) is not in the result array, run function to add it to the table.  Will need clientId and workout values
           if (!isInDb) {
-            console.log(`Adding ${workout} for clientId ${id} from database`);
-          }
+            console.log(`Adding workout ${workout} for clientId ${clientId} into database`);
 
-          
+            addTrainingSessionToClient(workout, clientId, function(error, result) {
+              if (error || result == null) {
+                console.log("Something went wrong adding the training session from the table");
+                response.status(500).json({success:false, data:error});
+              } else {
+                console.log(`Successfully added workout ${workout} to client ${clientId}`);
+              }
+            }) // end of callback function
 
-          
+          } // end of !isInDb statement
         }); // end of sessions foreach loop
-      }
-    });
+      } // end of else statement
+    }); // End getClientTrainingSessions
 
     // Set the header for the response
       response.status(200);
@@ -318,6 +333,51 @@ function editExisingClientInDB(firstName, lastName, phone, email, id, callback) 
     }
 
     console.log("Successfully updated userID", id);
+    // Now let the callback function know we're done
+    callback(null, result.rowCount);
+
+  }) // end of query
+}
+
+// Function for removing a training session from the clienttrainingsessiontable
+function removeTrainingSessionFromClient(id, callback) {
+  console.log(`Now removing row ${id} from the clientrainingsession table`);
+
+  const params = [id];
+
+  const sql = "DELETE FROM clienttrainingsessions WHERE id = $1::int";
+
+  pool.query(sql, params, function(err, result) {
+    if(err) {
+      console.log("Crap, something went wrong and couldn't remove the row from the table")
+      console.log(err);
+      callback(err, null);
+    }
+
+    console.log("Successfully removed row: ", id);
+    // Now let the callback function know we're done
+    callback(null, result.rowCount);
+
+  }) // end of query
+
+}
+
+// Add training session to the client
+function addTrainingSessionToClient(workout, id, callback) {
+  console.log(`Now removing row ${id} from the clientrainingsession table`);
+
+  const params = [workout, id];
+
+  const sql = " INSERT INTO clienttrainingsessions (sessionid, clientid) VALUES ($1::int, $2::int)";
+
+  pool.query(sql, params, function(err, result) {
+    if(err) {
+      console.log("Crap, something went wrong and couldn't add the session to the client")
+      console.log(err);
+      callback(err, null);
+    }
+
+    console.log("Successfully add workout: ", workout);
     // Now let the callback function know we're done
     callback(null, result.rowCount);
 
