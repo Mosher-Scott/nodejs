@@ -219,24 +219,70 @@ function editExistingClient(request, response) {
         console.log("Something went wrong getting the training sessions");
         response.status(500).json({success:false, data:error});
       } else {
-        // Compare the results from the DB query with the form data
-        result.forEach(dbQueryResult => {
-          console.log("ID:", dbQueryResult.id);
-          console.log("Session ID:", dbQueryResult.sessionid);
-            // 1. If dbQueryResult is in the sessions variable, do nothing
 
-            // 2. If dbQueryResult is not in the DB is NOT in the sessions variable, run query to remove it from the database using the dbQueryResult.id value
+        console.log(sessions);
+        console.log(result);
+
+        // Compare the results from the DB query with the form data.  If an element in the dbquery results isn't in the form data array, remove it from the db
+        result.forEach(dbQueryResult => {
+
+          var inSessionsArray = false;
+          console.log("\nTop of for forEach");
+          console.log(`230 inSessionsArray = ${inSessionsArray}`);
+          //console.log("Query Result ID:", dbQueryResult.id);
+          console.log("Query Result Session ID:", dbQueryResult.sessionid);
+
+            // 1. Now loop through the sessions array and compare values
+            for (var i = 0; i < sessions.length; i++) {
+              
+              console.log("line 236 sessions[i] value", sessions[i] )
+              
+              if (sessions[i] == dbQueryResult.sessionid) {
+                console.log(`Match. sessions[i] = ${sessions[i]} is in the database array`);
+                inSessionsArray = true;
+                console.log(`241 inSessionsArray = ${inSessionsArray}`);
+                break;
+              } else {
+                console.log(`dbQueryResult.sessionid  ${dbQueryResult.sessionid} != session value: ${sessions[i]}`);
+              }
+
+              console.log(`247 inSessionsArray = ${inSessionsArray}`);
+              
+            } // end of for loop to check the sessions array
+
+            // At the end of checking the sessions array if inSessionsArray still is false, remove dbQueryResult.id from the clienttrainingsession table
+            if (inSessionsArray == false) {
+              // TODO: Send dbQueryResult.id to function to remove it from the table
+              console.log(`Now pretend dbquery result ${dbQueryResult.sessionid} been removed from the array`)
+            }
 
         }) // End of forEach statement for comparing db and form data
 
-        // Now use another helper function to insert the training sessions into the table
+        console.log("End of checking if the dbquery result is in the form data")
+        // Now check if the session ID from the form is already in the database
         sessions.forEach(workout => {
-
-          // 1. If workout (aka sessionID) is in result array, skip doing anything
+          console.log(`Workout: ${workout}`);
+          // 1. If workout (aka sessionID) is in result array, skip it
+          for (var j = 0; j < result.length; j++) {
+            console.log(`dbQueryResult: ${result[j].sessionid}`);
+            
+            var isInDb = false;
+            // If it exists, break out of the loop
+            if(workout == result[j].sessionid) {
+              console.log("match");
+              isInDb = true;
+              break;
+            }
+          } // end of for loop
 
           // 2. If the workout (aka sessionID) is not in the result array, run function to add it to the table.  Will need clientId and workout values
+          if (!isInDb) {
+            console.log(`Adding ${workout} for clientId ${id} from database`);
+          }
 
-          console.log("Form Session ID: ", workout);
+          
+
+          
         }); // end of sessions foreach loop
       }
     });
