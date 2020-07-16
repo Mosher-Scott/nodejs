@@ -67,8 +67,12 @@ express()
   .post('/clientDetails', addNewClient)
 
   // Post data for adding a new client
-  //.post('/editClientDetails', editExistingClient)
   .post('/editClientDetails', editExistingClient)
+
+  // Delete a client from the database
+  .post('/deleteClient', deleteClient)
+
+  // Gets all client info 
   .get('/allClients', getAllClientsJSON)
  
 
@@ -173,24 +177,86 @@ function addNewClient(request, response) {
   }); // end of helper function
 }
 
-function test(request, response) {
-  console.log("Request Body: ", request.body);
+// Deletes a client from the database
+function deleteClient(request, response) {
+  console.log(request.body);
 
-  const id = request.body.id;
+  const clientId = request.body.id;
 
-  var trainingSessions = [];
-  // Get the sessions assigned to the client
-  getClientTrainingSessions(id, function(error, result) {
+  // Create the helper function
+  deleteClientTrainingSessionsFromDb(clientId, function(error, result)  {
+    console.log("Result: ", result);
     if (error || result == null) {
-      
+      console.log(`Something went wrong deleting training sessions for client ID ${clientId} from the table`);
+      console.log(error);
       response.status(500).json({success:false, data:error});
     } else {
-      trainingSessions = result;
-    }
-  });
+      console.log(`Successfully deleted training sessions assigned to ${clientId}`);
+      // Now delete the training sessions from the table
+      deleteClientFromDb(clientId, function(error, result) {
+        if (error || result == null) {
+          console.log(`Something went wrong deleting client ${clientId} the table`);
+          console.log(error);
+          response.status(500).json({success:false, data:error});
+        } else {
+           // Set the header for the response
+            response.status(200);
+            response.setHeader('Content-Type', 'text/html');
 
-    console.log(trainingSessions);
-  
+            console.log(result);
+            response.redirect('/clients');
+        }
+      })
+
+    }
+  })
+}
+
+// Function for deleting a client from the client table
+function deleteClientFromDb(id, callback) {
+  console.log(`Now deleting client ID ${id} from the database`);
+
+  const params = [id];
+
+  const sql = 'DELETE FROM CLIENT WHERE id = $1::int';
+
+  console.log("ID: ", id);
+
+  pool.query(sql, params, function(err, result) {
+
+    if(err) {
+      console.log(`an error occurred deleting client ID ${id} from the database`)
+      console.log(err)
+      callback(err, null);
+    }
+
+    console.log("Successfully deleted userID", id, " from the system");
+    // Now let the callback function know we're done
+    callback(null, 1);
+
+  })
+}
+
+// Function for deleting a client from the client table
+function deleteClientTrainingSessionsFromDb(id, callback) {
+  console.log(`Now deleting training sessions for client ID ${id} from the database`);
+
+  const params = [id];
+
+  const sql = 'DELETE FROM clienttrainingsessions WHERE clientid = $1::int';
+
+  pool.query(sql, params, function(err, result) {
+
+    if(err) {
+      console.log("an error occurred")
+      console.log(err)
+      callback(err, null);
+    }
+
+    console.log("Successfully deleted training sessions for userID", id, "from the system");
+    // Now let the callback function know we're done
+    callback(null, 1);
+  })
 }
 
 // Will process new client data & add it to the database

@@ -341,3 +341,137 @@ function createEditClientSubmitButton(form, baseDiv) {
         form.appendChild(submitButton);
         baseDiv.appendChild(form);
 }
+
+// Create the form for deleting a client
+function deleteClientForm(id) {
+    // Get the client details
+    var request = new XMLHttpRequest();
+
+    var url = '/clientDetails?id=' + id;
+
+    request.open('GET', url ,true);
+    request.responseType = 'json';
+
+    request.send();
+
+    request.onload = function() {
+        var data = request.response;
+        
+        // Get the H1 tag and change the text
+    var title = document.getElementById('pageTitle');
+    title.textContent = 'Edit Client';
+
+    // Change the browser tab text
+    var pageTitle = document.getElementById('browserTabName')
+    pageTitle.textContent = 'Edit Client';
+
+    // Change the "View All" button text
+    changeViewAllClientButton('Back');
+
+    // Remove the content already there
+    removeDataFromClients();
+
+    // console.log(data);
+    var baseDiv = document.querySelector('#response');
+
+    var textElement = document.createElement("h3");
+    textElement.classList.add("text-danger");
+    textElement.textContent = "Warning - This action cannot be undone";
+    baseDiv.appendChild(textElement);
+
+    // Now create the form.  Send it as a PUT request
+    var form = document.createElement('form');
+    form.method = "POST";
+    form.action = "\\deleteClient";
+
+    var id = document.createElement("input");
+    id.type = "hidden";
+    id.name = "id";
+    id.value = data.id;
+    form.append(id);
+
+    // First Name Section
+    var firstNameDiv = document.createElement("div");
+    firstNameDiv.classList.add("form-group");
+
+    var firstNameLabel = document.createElement("label");
+    firstNameLabel.setAttribute("for", "firstName");
+    firstNameLabel.textContent = "First Name";
+
+    var firstNameInput = document.createElement("input");
+    firstNameInput.type = "text";
+    firstNameInput.classList.add("form-control");
+    firstNameInput.name = "firstNameInput";
+    firstNameInput.readOnly = "true";
+    firstNameInput.value = data.first_name;
+
+    firstNameDiv.appendChild(firstNameLabel);
+    firstNameDiv.appendChild(firstNameInput);
+    form.appendChild(firstNameDiv);
+
+    // Last Name Section
+    var lastNameDiv = document.createElement("div");
+    lastNameDiv.classList.add("form-group");
+
+    var lastNameLabel = document.createElement("label");
+    lastNameLabel.setAttribute("for", "lastName");
+    lastNameLabel.textContent = "Last Name";
+
+    var lastNameInput = document.createElement("input");
+    lastNameInput.type = "text";
+    lastNameInput.classList.add("form-control");
+    lastNameInput.name = "lastNameInput";
+    lastNameInput.readOnly = "true";
+    lastNameInput.value = data.last_name;
+
+    lastNameDiv.appendChild(lastNameLabel);
+    lastNameDiv.appendChild(lastNameInput);
+    form.appendChild(lastNameDiv);
+
+    // Phone Input
+    var phoneDiv = document.createElement("div");
+    phoneDiv.classList.add("form-group");
+
+    var phoneLabel = document.createElement("label");
+    phoneLabel.setAttribute("for", "phone");
+    phoneLabel.textContent = "Phone";
+
+    var phoneInput = document.createElement("input");
+    phoneInput.type = "text";
+    phoneInput.classList.add("form-control");
+    phoneInput.name = "phoneInput";
+    phoneInput.readOnly = "true";
+    phoneInput.value = data.phone;
+
+    phoneDiv.appendChild(phoneLabel);
+    phoneDiv.appendChild(phoneInput);
+    form.appendChild(phoneDiv);
+
+    var emailDiv = document.createElement("div");
+    emailDiv.classList.add("form-group");
+
+    var emailLabel = document.createElement("label");
+    emailLabel.setAttribute("for", "email");
+    emailLabel.textContent = "Email";
+
+    var emailInput = document.createElement("input");
+    emailInput.type = "email";
+    emailInput.classList.add("form-control");
+    emailInput.name = "emailInput";
+    emailInput.readOnly = "true"
+    emailInput.value = data.email;
+
+    emailDiv.appendChild(emailLabel);
+    emailDiv.appendChild(emailInput);
+    form.appendChild(emailDiv);
+    
+    var submitButton = document.createElement('button');
+    submitButton.value = "submit";
+    submitButton.classList.add("btn");
+    submitButton.classList.add("btn-danger");
+    submitButton.textContent = "Delete Client";
+    form.appendChild(submitButton);
+    baseDiv.appendChild(form);
+
+    }
+}

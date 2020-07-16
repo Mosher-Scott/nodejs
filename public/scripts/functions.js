@@ -157,7 +157,7 @@ function showClientDetails(data){
     // Delete Button
     var deletething = document.createElement('td');
     var deleteSpan = document.createElement('span');
-    deleteSpan.innerHTML = "<button id='button" + id + "' class='btn btn-danger btn-sm' onclick='deleteClient(" + id + ")' ?>Delete</button>";
+    deleteSpan.innerHTML = "<button id='button" + id + "' class='btn btn-danger btn-sm' onclick='deleteClientForm(" + id + ")' ?>Delete</button>";
     deletething.appendChild(deleteSpan);
     tr.appendChild(deletething);
 
@@ -387,7 +387,7 @@ function createClientTable(data) {
         // Delete Button
         var deletething = document.createElement('td');
         var deleteSpan = document.createElement('span');
-        deleteSpan.innerHTML = "<button id='button" + id + "' class='btn btn-danger btn-sm' onclick='deleteClient(" + id + ")' ?>Delete</button>";
+        deleteSpan.innerHTML = "<button id='button" + id + "' class='btn btn-danger btn-sm' onclick='deleteClientForm(" + id + ")' ?>Delete</button>";
         deletething.appendChild(deleteSpan);
         tr.appendChild(deletething);
 
@@ -513,7 +513,7 @@ function createTrainingSessionTable(data){
             // Delete Button
             var deletething = document.createElement('td');
             var deleteSpan = document.createElement('span');
-            deleteSpan.innerHTML = "<button id='button" + id + "' class='btn btn-danger btn-sm' onclick='deleteClient(" + id + ")' ?>Remove</button>"; // TODO: Make this work
+            deleteSpan.innerHTML = "<button id='button" + id + "' class='btn btn-danger btn-sm' onclick='deleteClientForm(" + id + ")' ?>Remove</button>"; // TODO: Make this work
             deletething.appendChild(deleteSpan);
             tr.appendChild(deletething);
 
